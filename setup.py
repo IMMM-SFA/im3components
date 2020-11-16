@@ -20,5 +20,7 @@ setup(
     author='Chris R. Vernon',
     author_email='chris.vernon@pnnl.gov',
     description='IM3 components to maintain reproducible interoperability',
-    python_requires='>=3.6.*'
+    python_requires='>=3.6.*',
+    long_description=readme(),
+    install_requires=get_requirements()
 )
