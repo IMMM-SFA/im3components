@@ -10,5 +10,5 @@ Each component should follow this naming convention in all lower case separated 
 `<parent_model_name>_<child_model_name>_<purpose>`
 
 | component | from | from_version | to | to_version | description |
-| -- | -- | -- | -- | -- | -- |
+| :--: | :--: | :--: | :--: | :--: | -- |
 | `gcam_cerf_expansion_plan` | GCAM | TBD | CERF | TBD | converts a GCAM-USA electricity capacity expansion plan into the format needed for CERF's inputs. |
