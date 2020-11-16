@@ -12,3 +12,13 @@ Each component should follow this naming convention in all lower case separated 
 | component | from | from_version | to | to_version | description |
 | :--: | :--: | :--: | :--: | :--: | -- |
 | `gcam_cerf_expansion_plan` | GCAM | TBD | CERF | TBD | converts a GCAM-USA electricity capacity expansion plan into the format needed for CERF's inputs. |
+
+## Contribute components
+To add a new component:
+ - create a branch or fork of this repo with the naming convention `<parent_model_name>0-<child_model_name>-<purpose>`
+ - add a script following the same name convention as your function within the Python package in this repository with the code you intend to publish
+ - generate tests within the testing module of the `im3components` package; ask a DSC member for assistance if you need help setting these up
+ - update the table in the README to account for your component
+ - ensure that you have updated the `requirements.txt` file with any dependencies from your code
+ - create a pull requests and set a member of our DSC team as a reviewer; the pull request description should include a description of the desired functionality and the location of any data needed to conduct tests
+ - once the pull requests has been reviewed, accepted, and all test are passing this will be merged into the master and a new version will be released
