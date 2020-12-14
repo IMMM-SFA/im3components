@@ -2,7 +2,7 @@
 .idea
 
 # system
-.DS_ignore
+.DS_Store
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -133,3 +133,7 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+.Rproj.user
+
+# R history
+.Rhistory
