@@ -1,4 +1,4 @@
-![test-coverage](https://github.com/IMMM-SFA/im3components/workflows/build/badge.svg) [![codecov](https://codecov.io/gh/IMMM-SFA/im3components/branch/master/graph/badge.svg)](https://codecov.io/gh/IMMM-SFA/im3components)
+![test-coverage](https://github.com/IMMM-SFA/im3components/workflows/build/badge.svg) [![codecov](https://codecov.io/gh/IMMM-SFA/im3components/branch/main/graph/badge.svg)](https://codecov.io/gh/IMMM-SFA/im3components)
 
 # im3components
 IM3 components to maintain reproducible interoperability
