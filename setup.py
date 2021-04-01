@@ -22,5 +22,8 @@ setup(
     description='IM3 components to maintain reproducible interoperability',
     python_requires='>=3.6.*',
     long_description=readme(),
-    install_requires=get_requirements()
+    install_requires=get_requirements(),
+    extras_require={
+        'mpi': ['mpi4py~=3.0.3']
+    }
 )

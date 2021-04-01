@@ -11,6 +11,7 @@ import concurrent.futures.thread
 import argparse
 import dask.dataframe as dd
 from glob import glob
+from importlib.util import find_spec, module_from_spec
 import io
 from joblib import Parallel, delayed
 import logging
@@ -19,7 +20,11 @@ import pandas as pd
 from pathlib import Path
 import re
 import shutil
+import sys
 from timeit import default_timer as timer
+
+mpi_module = 'mpi4py.MPI'
+mpi_futures = 'mpi4py.futures'
 
 
 class StateModDataExtractor:
@@ -31,6 +36,7 @@ class StateModDataExtractor:
             glob_to_xdd: str,
             output_path: str,
             allow_overwrite: bool = False,
+            has_mpi: bool = False
     ):
 
         # path to file with the structure ids of interest separated by newlines
@@ -54,6 +60,9 @@ class StateModDataExtractor:
         # this check is implemented in a simplistic way:
         #   - do any parquet files exist in output_path or not
         self.allow_overwrite = allow_overwrite
+
+        # is mpi in use and loaded
+        self.use_mpi = has_mpi
 
         # expected data format
         self.metadata_rows = np.arange(1, 12)
@@ -288,17 +297,33 @@ class StateModDataExtractor:
 
         # setup logging
         logging.basicConfig(
-            filename=Path(f'{self.output_path}/log.log'),
             level='INFO',
             format='%(asctime)s - %(filename)s: %(message)s',
-            datefmt='%m/%d/%Y %I:%M:%S %p'
+            datefmt='%m/%d/%Y %I:%M:%S %p',
+            handlers=[
+                logging.FileHandler(Path(f'{self.output_path}/log.log')),
+                logging.StreamHandler()
+            ]
         )
 
-        with Parallel(n_jobs=12, temp_folder=self.temporary_path) as parallel:
+        # check if MPI is available
+        # if so, use mpi4py
+        # if not, use joblib
+        if self.use_mpi:
+            context = futures.MPIPoolExecutor
+            logging.info(f"Running with mpi4py; world size =  {mpi.COMM_WORLD.Get_size()}.")
+        else:
+            context = Parallel
+            logging.info("Running with joblib.")
+
+        with context(**(dict() if self.use_mpi else dict(n_jobs=-1, temp_folder=self.temporary_path))) as executor:
 
             # create the temporary files per xdd file
             logging.info('Creating temporary parquet files per xdd.')
-            successful_xdd = parallel(delayed(self.parse_xdd_file)(file) for file in files)
+            if self.use_mpi:
+                successful_xdd = executor.map(self.parse_xdd_file, files, unordered=True)
+            else:
+                successful_xdd = executor(delayed(self.parse_xdd_file)(file) for file in files)
             # check how many failed
             failed_xdd = [files[i] for i, status in enumerate(successful_xdd) if status is False]
             if len(failed_xdd) > 0:
@@ -306,9 +331,16 @@ class StateModDataExtractor:
 
             # aggregate the temporary files per structure_id to create the final output files
             logging.info('Aggregating structure_id data to parquet files.')
-            successful_structure_id = parallel(
-                delayed(self.create_file_per_structure_id)(structure_id) for structure_id in self.ids_of_interest
-            )
+            if self.use_mpi:
+                successful_structure_id = executor.map(
+                    self.create_file_per_structure_id,
+                    self.ids_of_interest,
+                    unordered=True
+                )
+            else:
+                successful_structure_id = executor(
+                    delayed(self.create_file_per_structure_id)(structure_id) for structure_id in self.ids_of_interest
+                )
             # check how many failed
             failed_parquet = [
                 self.ids_of_interest[i] for i, status in enumerate(successful_structure_id) if status is False
@@ -334,48 +366,65 @@ class StateModDataExtractor:
 
 if __name__ == '__main__':
 
-    parser = argparse.ArgumentParser(
-        description=
-        "Extract data from XDD files for a given set of structure IDs, producing a parquet file for each ID."
-    )
-    parser.add_argument(
-        '-f',
-        '--force',
-        action='store_true',
-        dest='force',
-        help="allow overwriting existing parquet files (default: false)"
-    )
-    parser.add_argument(
-        '-i',
-        '--ids',
-        metavar='/path/to/id/file',
-        action='store',
-        required=True,
-        dest='ids',
-        help="path to a file containing whitespace delimited structure ids of interest (required)"
-    )
-    parser.add_argument(
-        '-o',
-        '--output',
-        metavar='/path/to/output/directory',
-        action='store',
-        default=Path('./output'),
-        dest='output',
-        help="path to a directory to write the output files (default: './output')"
-    )
-    parser.add_argument(
-        'XDDs',
-        metavar='/glob/to/xdd/files',
-        action='store',
-        help="glob to the XDD files to parse (i.e. './*.xdd')"
-    )
+    use_mpi = False
+    if mpi_module in sys.modules:
+        use_mpi = True
+    elif (spec := find_spec(mpi_module)) is not None:
+        mpi = module_from_spec(spec)
+        futures_spec = find_spec(mpi_futures)
+        futures = module_from_spec(futures_spec)
+        sys.modules[mpi_module] = mpi
+        sys.modules[mpi_futures] = futures
+        spec.loader.exec_module(mpi)
+        futures_spec.loader.exec_module(futures)
+        if mpi.COMM_WORLD.Get_size() > 1:
+            use_mpi = True
 
-    args = parser.parse_args()
+    if not use_mpi or mpi.COMM_WORLD.Get_rank() == 0:
 
-    extractor = StateModDataExtractor(
-        allow_overwrite=args.force,
-        glob_to_xdd=args.XDDs,
-        output_path=args.output,
-        structure_ids_file_path=args.ids
-    )
-    extractor.extract()
+        parser = argparse.ArgumentParser(
+            description=
+            "Extract data from XDD files for a given set of structure IDs, producing a parquet file for each ID."
+        )
+        parser.add_argument(
+            '-f',
+            '--force',
+            action='store_true',
+            dest='force',
+            help="allow overwriting existing parquet files (default: false)"
+        )
+        parser.add_argument(
+            '-i',
+            '--ids',
+            metavar='/path/to/id/file',
+            action='store',
+            required=True,
+            dest='ids',
+            help="path to a file containing whitespace delimited structure ids of interest (required)"
+        )
+        parser.add_argument(
+            '-o',
+            '--output',
+            metavar='/path/to/output/directory',
+            action='store',
+            default=Path('./output'),
+            dest='output',
+            help="path to a directory to write the output files (default: './output')"
+        )
+        parser.add_argument(
+            'XDDs',
+            metavar='/glob/to/xdd/files',
+            action='store',
+            help="glob to the XDD files to parse (i.e. './*.xdd')"
+        )
+
+        args = parser.parse_args()
+
+        extractor = StateModDataExtractor(
+            allow_overwrite=args.force,
+            glob_to_xdd=args.XDDs,
+            output_path=args.output,
+            structure_ids_file_path=args.ids,
+            has_mpi=use_mpi
+        )
+        extractor.extract()
