@@ -14,6 +14,7 @@ Each component should follow this naming convention in all lower case separated 
 | language | component | from | from_version | to | to_version | description |
 | :--: | :--: | :--: | :--: | :--: | :--: | -- |
 | Python | `gcam_cerf_expansion_plan` | GCAM | TBD | CERF | TBD | converts a GCAM-USA electricity capacity expansion plan into the format needed for CERF's inputs. |
+| Python | `statemod_data_extraction` | StateMod | 15.00.01 | TBD | TBD | converts StateMod xdd files into parquet files -- one for each requested structure_id. |
 | R | `gcam_modelx_sum` | GCAM | TBD | ModelX | TBD | example function to represent data from GCAM being converted for some use by ModelX (fake model) |
 
 
