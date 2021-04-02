@@ -1,8 +1,9 @@
-#!/usr/bin/env python
-
+#!/usr/bin/env python3
 # SBATCH -A im3
-# SBATCH -N 1
-# SBATCH -p slurm
+# SBATCH --nodes=4
+# SBATCH --ntasks-per-node=16
+# SBATCH --cpus-per-task=1
+# SBATCH -p normal
 # SBATCH -t 03:00:00
 # SBATCH --exclusive
 # SBATCH --job-name xdd_to_parquet
@@ -22,6 +23,7 @@ import re
 import shutil
 import sys
 from timeit import default_timer as timer
+from typing import Iterable
 
 mpi_module = 'mpi4py.MPI'
 mpi_futures = 'mpi4py.futures'
@@ -33,8 +35,9 @@ class StateModDataExtractor:
     def __init__(
             self,
             structure_ids_file_path: str,
-            glob_to_xdd: str,
             output_path: str,
+            glob_to_xdd: str = None,
+            xdd_files: Iterable[str] = None,
             allow_overwrite: bool = False,
             has_mpi: bool = False
     ):
@@ -47,6 +50,9 @@ class StateModDataExtractor:
         # glob path to xdd files
         # absolute path is best; relative path must be relative to where you run from
         self.glob_to_xdd = glob_to_xdd
+        self.files = xdd_files
+        if self.glob_to_xdd is None and self.files is None:
+            raise IOError("Must supply at least one xdd file.")
 
         # output path
         # be sure to look at the log file generated here after running
@@ -266,7 +272,7 @@ class StateModDataExtractor:
             raise IOError(f"No structure_ids found in {self.structure_ids_file_path}. Aborting.")
 
         # get a list of the xdd files to parse
-        files = glob(self.glob_to_xdd)
+        files = self.files if self.files is not None and len(self.files) > 0 else glob(self.glob_to_xdd)
 
         # make sure we found some xdds
         if not files or len(files) == 0:
@@ -367,15 +373,16 @@ class StateModDataExtractor:
 if __name__ == '__main__':
 
     use_mpi = False
+    mpi_spec = find_spec(mpi_module)
     if mpi_module in sys.modules:
         use_mpi = True
-    elif (spec := find_spec(mpi_module)) is not None:
-        mpi = module_from_spec(spec)
+    elif mpi_spec is not None:
+        mpi = module_from_spec(mpi_spec)
         futures_spec = find_spec(mpi_futures)
         futures = module_from_spec(futures_spec)
         sys.modules[mpi_module] = mpi
         sys.modules[mpi_futures] = futures
-        spec.loader.exec_module(mpi)
+        mpi_spec.loader.exec_module(mpi)
         futures_spec.loader.exec_module(futures)
         if mpi.COMM_WORLD.Get_size() > 1:
             use_mpi = True
@@ -412,9 +419,9 @@ if __name__ == '__main__':
             help="path to a directory to write the output files (default: './output')"
         )
         parser.add_argument(
-            'XDDs',
-            metavar='/glob/to/xdd/files',
-            action='store',
+            'files',
+            metavar='file',
+            nargs='+',
             help="glob to the XDD files to parse (i.e. './*.xdd')"
         )
 
@@ -422,7 +429,7 @@ if __name__ == '__main__':
 
         extractor = StateModDataExtractor(
             allow_overwrite=args.force,
-            glob_to_xdd=args.XDDs,
+            xdd_files=args.files,
             output_path=args.output,
             structure_ids_file_path=args.ids,
             has_mpi=use_mpi
