@@ -2,7 +2,7 @@ Package: im3components
 Title: R scripts for the IM3 project
 Version: 0.1.0
 Authors@R: c(
-		   person("Chris", "Vernon", role = c("aut","cre"), comment = c(ORCID ="0000-0002-3406-6214")),
+		   person("Chris", "Vernon", email = "chris.vernon@pnnl.gov",role = c("aut","cre"), comment = c(ORCID ="0000-0002-3406-6214")),
 		   person("Zarrar", "Khan", email = "zarrar.khan@pnnl.gov", role = c("aut"),comment = c(ORCID ="0000-0002-8147-8553")))
 Description: What the package does (one paragraph).
 License: MIT + file LICENSE
