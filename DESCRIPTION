@@ -1,18 +1,27 @@
 Package: im3components
-Title: What the Package Does (One Line, Title Case)
-Version: 0.0.0.9000
-Authors@R: 
-    person(given = "First",
-           family = "Last",
-           role = c("aut", "cre"),
-           email = "first.last@example.com",
-           comment = c(ORCID = "YOUR-ORCID-ID"))
+Title: R scripts for the IM3 project
+Version: 0.1.0
+Authors@R: c(
+		   person("Chris", "Vernon", role = c("aut"), comment = c(ORCID ="0000-0002-3406-6214")),
+		   person("Zarrar", "Khan", email = "zarrar.khan@pnnl.gov", role = c("aut", "cre"),comment = c(ORCID ="0000-0002-8147-8553")))
 Description: What the package does (one paragraph).
-License: `use_mit_license()`, `use_gpl3_license()` or friends to
-    pick a license
+License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.1
+Imports:
+	ncdf4,
+	sp,
+	raster,
+	akima,
+	dplyr,
+	tibble,
+	stats,
+	magrittr,
+	data.table,
+	tidyr
 Suggests: 
     testthat
+Depends: 
+    R (>= 2.10)

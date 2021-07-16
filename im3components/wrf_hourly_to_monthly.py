@@ -3,6 +3,7 @@ from itertools import compress
 import pandas as pd
 import netCDF4
 import warnings
+import xarray
 
 """wrf_hourly_to_monthly
 
@@ -44,6 +45,30 @@ def wrf_hourly_to_monthly(
     wrf_hourly_to_monthly(wrf_files, out_dir)
 
     """
+
+    # Alternative using xarray
+    # import xarray as xr
+    # from datetime import datetime
+    #ds = open_dataset('C:/Z/models/xanthosWRFData/wrfout_d01_2009-01-01_00-00-00.nc')
+    ## Set time
+    #start = datetime.strptime(ds.START_DATE,'%Y-%m-%d_%H:%M:%S')
+    #date_range = pd.date_range(start, periods=len(ds['Time']), freq="H")
+    ## Set time dimension
+    #ds['Time'] = date_range
+    #da = ds.resample(Time="M").mean()
+
+    # Resampling Resolution
+    import matplotlib.pyplot as plt
+    import numpy as np
+    from mpl_toolkits.basemap import Basemap
+    nc = netCDF4.Dataset('C:/Z/models/xanthosWRFData/wrfout_d01_2009-01-01_00-00-00.nc')
+    lat = nc.variables['latitude'][:]
+    lon = nc.variables['longitude'][:]
+    time = nc.variables['time'][:]
+    t2 = nc.variables['p2t'][:]  # 2 meter temperature
+    mslp = nc.variables['msl'][:]  # mean sea level pressure
+    u = nc.variables['p10u'][:]  # 10m u-component of winds
+    v = nc.variables['p10v'][:]  # 10m v-component of winds
 
     print("Starting wrf_hourly_to_monthly...")
 
