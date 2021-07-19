@@ -49,6 +49,7 @@ rmap::map(a2,
 #   ncdf_resampled = ncdf_resampled_i)->x
 }
 
+
 # Projections of ncdf data and Xanthos
 if(T){
 library(ncdf4)
