@@ -17,7 +17,7 @@ resample_wrf_to_df(
 )
 }
 \arguments{
-\item{ncdf_path}{Default = NULL. Path to netcdf file or folder containing '.nc' files.}
+\item{ncdf_path}{Default = NULL. Path to netcdf file}
 
 \item{target_grid}{Default = NULL. Path to target_grid file .csv or a dataframe}
 

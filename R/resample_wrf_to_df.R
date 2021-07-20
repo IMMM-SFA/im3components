@@ -2,7 +2,7 @@
 #'
 #' Resample a netcdf4 file to new lat/lon coordinates based on
 #' a given dataframe. Returns a long dataframe with lat lon and parameter from the netcdf chosen.
-#' @param ncdf_path  Default = NULL. Path to netcdf file or folder containing '.nc' files.
+#' @param ncdf_path  Default = NULL. Path to netcdf file
 #' @param target_grid Default = NULL. Path to target_grid file .csv or a dataframe
 #' @param params Default = NULL. Params from the netcdf file to resample.
 #' For Xanthos params= c("RAINC","Q2","PSFC","T2","GLW","SWDOWN","V10","U10")

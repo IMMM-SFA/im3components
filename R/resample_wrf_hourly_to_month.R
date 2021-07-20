@@ -35,7 +35,7 @@ resample_wrf_hourly_to_month <- function(ncdf_path = NULL,
 
   # Check if ncdf_path is a folder or list of files
   if(dir.exists(ncdf_path)){
-    ncdf_paths_original <- list.files(ncdf_path, pattern=".nc$", full.names=TRUE)
+    ncdf_paths_original <- list.files(ncdf_path, pattern=".nc$", full.names=TRUE, recursive=T)
   } else {
     if(is.character(class(ncdf_path))){
       ncdf_paths_original <- ncdf_path
