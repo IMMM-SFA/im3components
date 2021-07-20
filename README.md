@@ -16,6 +16,8 @@ Each component should follow this naming convention in all lower case separated 
 | Python | `gcam_cerf_expansion_plan` | GCAM | TBD | CERF | TBD | converts a GCAM-USA electricity capacity expansion plan into the format needed for CERF's inputs. |
 | R | `gcam_modelx_sum` | GCAM | TBD | ModelX | TBD | example function to represent data from GCAM being converted for some use by ModelX (fake model) |
 | R | `wrf_xanthos_resample` | wrf | TBD | xanthos | v2.4.0 | resample from WRF hourly, 12kmx12km data to Xanthos monthly, 0.5x0.5deg grid for each WRF parameter selected.|
+| python | `wrf_xanthos_to_npy` | wrf | TBD | xanthos | v2.4.0 | convert .csv file out from wrf_xanthos_resample to .npy for xanthos|
+| bash | `wrf_xanthos_bash` | wrf | TBD | xanthos | v2.4.0 | run wrf_xanthos_resample and wrf_xanthos_to_npy on NERSC|
 
 
 ## Contribute components
@@ -27,3 +29,12 @@ To add a new component:
  - for Python, ensure that you have updated the `requirements.txt` file with any dependencies from your code
  - create a pull requests and set a member of our DSC team as a reviewer; the pull request description should include a description of the desired functionality and the location of any data needed to conduct tests
  - once the pull requests has been reviewed, accepted, and all test are passing this will be merged into the master and a new version will be released
+
+
+## WRF to Xanthos
+Work flow for WRF to Xanthos data processing:
+- Login into NERSC
+- cd /
+- sbacth xxxx
+- withing the bash file
+- Final outputs in XXXX
