@@ -9,12 +9,13 @@ library(im3components)
 if(T){
 ncdf_path_i = paste0("C:/Z/models/xanthosWRFData/wrfout_d01_2009-01-01_00-00-00.nc")
 ncdf_path_i = paste0("C:/Z/models/xanthosWRFData/wrfout_d01_2009-01-08_01-00-00.nc")
+ncdf_path_i = paste0("C:/Z/models/xanthosWRFData/wrfout_d01_1979-01-01_00-00-00.nc")
+ncdf_path_i = paste0("C:/Z/models/xanthosWRFData")
 target_grid_i = "C:/Z/models/xanthos/example/input/reference/coordinates.csv"
 params_i = c("RAINC","Q2","PSFC","T2","GLW","SWDOWN","V10","U10")
 out_dir_i='output'
 save_i = T
 ncdf_resampled_i = im3components::data_ncdf_resampled_wrf_xanthos
-ncdf_path_i = paste0("C:/Z/models/xanthosWRFData")
 aggregation_method_i = c("mean","mean","mean","mean","mean","mean","mean","mean")
 
 im3components::wrf_xanthos_resample(
@@ -130,4 +131,15 @@ ggplot() +
 # df <- as.data.frame(spdf);df
 # dfx<- as.data.frame(spdfx);dfx
 # target_grid_i
+
+# ON NERSC
+# library(im3components)
+# ncdf_path = paste0("/global/cfs/cdirs/m2702/gsharing/CONUS_PGW_WRF_1979_Sample")
+# target_grid = "C:/Z/models/xanthos/example/input/reference/coordinates.csv"
+# params = c("RAINC","Q2","PSFC","T2","GLW","SWDOWN","V10","U10")
+# out_dir='output_wrf_to_xanthos_process_R_sample'
+# save = T
+# ncdf_resampled= im3components::data_ncdf_resampled_wrf_xanthos
+# aggregation_method = "mean"
+
 }

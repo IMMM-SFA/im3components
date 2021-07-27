@@ -33,8 +33,8 @@ resample_wrf_to_df <- function(ncdf_path = NULL,
   nc <- ncdf4::nc_open(ncdf_path)
   variables <- paste(attributes(nc$var)$names,collapse=", ")
   paste0("Variables available: ", variables) # Get Variable Names
-  ncdf_lon <- raster::raster(ncdf_path, varname="XLONG") # Get Lat
-  ncdf_lat <- raster::raster(ncdf_path, varname="XLAT") # Get Lon
+  ncdf_lon <- raster::raster(ncdf_path, varname="XLONG",ncdf=TRUE) # Get Lat
+  ncdf_lat <- raster::raster(ncdf_path, varname="XLAT",ncdf=TRUE) # Get Lon
   ncdf_time <-  ncdf4::ncvar_get(nc,"Times")
 
   # Check if params are in available variables
@@ -67,7 +67,7 @@ resample_wrf_to_df <- function(ncdf_path = NULL,
 
   # Create a data frame with coordinates
   # x/y are just indices and represent different points on the target_grid with their own lat/lon
-  ncdf_raster <- raster::raster(ncdf_path, varname="XLONG")
+  ncdf_raster <- raster::raster(ncdf_path, varname="XLONG",ncdf=TRUE)
   ncdf_grid <- data.frame(sp::coordinates(ncdf_raster),
                           lon = as.vector(ncdf_lon),
                           lat = as.vector(ncdf_lat)) %>%

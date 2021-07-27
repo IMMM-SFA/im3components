@@ -34,7 +34,6 @@ To add a new component:
 ## WRF to Xanthos
 Work flow for WRF to Xanthos data processing:
 - Login into NERSC
-- cd /
-- sbacth xxxx
-- withing the bash file
-- Final outputs in XXXX
+- cd /global/cfs/cdirs/m2702/gcamusa/wrf_to_xanthos
+- sbatch wrf_to_xanthos.sh
+- Final outputs in: cd /global/cfs/cdirs/m2702/gcamusa/wrf_to_xanthos/outputs
