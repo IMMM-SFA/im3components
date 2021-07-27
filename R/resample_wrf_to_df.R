@@ -143,7 +143,7 @@ resample_wrf_to_df <- function(ncdf_path = NULL,
     if(unit_i ==""){unit_i <- "none"}
     print(paste0("Starting resampling for param: ", param_i, " with units: ", unit_i))
 
-    ncdf_brick_i <- raster::brick(ncdf_path, varname=param_i)
+    ncdf_brick_i <- raster::brick(ncdf_path, varname=param_i, ncdf=TRUE)
 
     # Now extract the values at the new locations with the xanthos lat/lon by bilinear interpolation
     # which uses the four nearest neighbours
