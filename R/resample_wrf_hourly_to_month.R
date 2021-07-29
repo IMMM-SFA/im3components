@@ -145,12 +145,14 @@ resample_wrf_hourly_to_month <- function(ncdf_path = NULL,
     a4 = 35.86
 
     resampled_monthly_df_rh <- resampled_monthly_df %>%
+      dplyr::ungroup() %>%
       dplyr::filter(param %in% c("Q2","T2","PSFC")) %>%
       dplyr::select(-unit) %>%
       tidyr::spread(key="param",value="value") %>%
       dplyr::mutate(rh = Q2 / ( (pq0 / PSFC) * exp(a2 * (T2 - a3) / (T2 - a4)) ),
                     unit = "percent") %>%
       dplyr::select(-PSFC,-Q2,-T2) %>%
+      dplyr::ungroup() %>%
       dplyr::rename(param=rh) %>%
       dplyr::mutate(param = "rh")
 
@@ -166,10 +168,12 @@ resample_wrf_hourly_to_month <- function(ncdf_path = NULL,
     print("Calculating new param 'v' Wind Speed (m s-1) from V10 and U10 for Xanthos.")
 
     resampled_monthly_df_v <- resampled_monthly_df %>%
+      dplyr::ungroup() %>%
       dplyr::filter(param %in% c("V10","U10")) %>%
       tidyr::spread(key="param",value="value") %>%
       dplyr::mutate(v = sqrt(V10^2 + U10^2))%>%
       dplyr::select(-V10,-U10) %>%
+      dplyr::ungroup() %>%
       dplyr::rename(param=v) %>%
       dplyr::mutate(param = "v")
 
@@ -185,6 +189,7 @@ resample_wrf_hourly_to_month <- function(ncdf_path = NULL,
     print("Calculating new param 'tempDegC' temperature in Degree Celcius from T2 for Xanthos.")
 
     resampled_monthly_df_tdegc <- resampled_monthly_df %>%
+      dplyr::ungroup() %>%
       dplyr::filter(param %in% c("T2")) %>%
       dplyr::mutate(value = value - 273.15)%>%
       dplyr::mutate(param = "tempDegC",

@@ -7,6 +7,7 @@ library(im3components)
 #..........................
 
 if(T){
+
 ncdf_path_i = paste0("C:/Z/models/xanthosWRFData/wrfout_d01_2009-01-01_00-00-00.nc")
 ncdf_path_i = paste0("C:/Z/models/xanthosWRFData/wrfout_d01_2009-01-08_01-00-00.nc")
 ncdf_path_i = paste0("C:/Z/models/xanthosWRFData/wrfout_d01_1979-01-01_00-00-00.nc")
