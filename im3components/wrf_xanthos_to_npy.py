@@ -28,7 +28,7 @@ def wrf_xanthos_to_npy(
     USAGE:
     from im3components import wrf_xanthos_to_npy
     files_path = ['full_path_to_wrf_file1', 'full_path_to_wrf_file2']
-    # OR files_path = 'full_path_to_folder_with_files'
+    # OR folder_path = 'full_path_to_folder_with_files'
     out_dir = 'output_folder_name' OR 'full_path_to_output_folder_name'
     wrf_xanthos_to_npy(files_path, out_dir)
 

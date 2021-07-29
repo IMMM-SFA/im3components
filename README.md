@@ -17,7 +17,9 @@ Each component should follow this naming convention in all lower case separated 
 | R | `gcam_modelx_sum` | GCAM | TBD | ModelX | TBD | example function to represent data from GCAM being converted for some use by ModelX (fake model) |
 | R | `wrf_xanthos_resample` | wrf | TBD | xanthos | v2.4.0 | resample from WRF hourly, 12kmx12km data to Xanthos monthly, 0.5x0.5deg grid for each WRF parameter selected.|
 | python | `wrf_xanthos_to_npy` | wrf | TBD | xanthos | v2.4.0 | convert .csv file out from wrf_xanthos_resample to .npy for xanthos|
-| bash | `wrf_xanthos_bash` | wrf | TBD | xanthos | v2.4.0 | run wrf_xanthos_resample and wrf_xanthos_to_npy on NERSC|
+| bash | `wrf_xanthos_process.sh` | wrf | TBD | xanthos | v2.4.0 | run wrf_xanthos_process.R and wrf_xanthos_process.py on NERSC|
+| R | `wrf_xanthos_process.R` | wrf | TBD | xanthos | v2.4.0 | run wrf_xanthos_resample on NERSC|
+| Python | `wrf_xanthos_process.py` | wrf | TBD | xanthos | v2.4.0 | run wrf_xanthos_to_npy on NERSC|
 
 
 ## Contribute components
@@ -35,5 +37,10 @@ To add a new component:
 Work flow for WRF to Xanthos data processing:
 - Login into NERSC
 - cd /global/cfs/cdirs/m2702/gcamusa/wrf_to_xanthos
+- Modify the 'ncdf_path_i' in /global/cfs/cdirs/m2702/gcamusa/wrf_to_xanthos/wrf_to_xanthos_process.R to point to the folder or files to processing
+- WRF files are being hosted at: /global/cfs/cdirs/m2702/gsharing
 - sbatch wrf_to_xanthos.sh
-- Final outputs in: cd /global/cfs/cdirs/m2702/gcamusa/wrf_to_xanthos/outputs
+- squeue -u USERNAME # To see progress
+- Outputs from the wrf_to_xanthos_process.R script in .csv format at: cd /global/cfs/cdirs/m2702/gcamusa/wrf_to_xanthos/outputs_wrf_to_xanthos_process_R
+- Outputs from the wrf_to_xanthos_process.py script in .npy format at: cd /global/cfs/cdirs/m2702/gcamusa/wrf_to_xanthos/outputs_wrf_to_xanthos_process_python
+
