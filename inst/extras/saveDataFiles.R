@@ -1,5 +1,14 @@
-# Converting raw data into package data
+
+# Load Libraries
 library(usethis)
+library(dplyr)
+
+#..................
+# wrf_to_xanthos data
+#..................
+if(T){
+
+# Converting raw data into package data
 library(data.table)
 library(magrittr)
 library(ncdf4)
@@ -98,4 +107,26 @@ data_coordinates_xanthos_reference <- data.table::fread(coordinates_xanthos_refe
   dplyr::select(lon=V2,lat=V3,gridid=V1,lonid=V4,latid=V5); data_coordinates_xanthos_reference
 use_data(data_coordinates_xanthos_reference, overwrite=T)
 
+}
 
+#.................
+# pop_to_gcam data
+#..................
+
+if(T){
+
+  # Raw data from: Jiang, Leiwen, et al. 2020 "Population scenarios for US states consistent with shared
+  # socioeconomic pathways." Environmental Research Letters 15.9 (2020): 094097;
+  # Paper: https://iopscience.iop.org/article/10.1088/1748-9326/aba5b1/pdf
+  # Raw data downloaded from: http://doi.org/10.5281/zenodo.3956703 and unzipped. Relevant file:
+  # statepop-v0.1.0\IMMM-SFA-statepop-61c8fff\inputs\AllStatesProjection.csv
+  data_NCAR_raw <- data.table::fread("AllStatesProjection.csv", header=T) %>% as_tibble(); data_NCAR_raw
+  use_data(data_NCAR_raw, overwrite=T)
+
+  # Exisitng NCAR data from GCAM for SSP2 also read in to follow format.
+  # Available at:  ./input/gcamdata/inst/extdata/gcam-usa/NCAR_SSO2_pop_state.csv
+  data_NCAR_gcam <- data.table::fread("NCAR_SSP2_pop_state.csv", header=T) %>% as_tibble(); data_NCAR_gcam
+  use_data(data_NCAR_gcam, overwrite=T)
+
+
+}

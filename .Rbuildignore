@@ -4,6 +4,7 @@
 ^.*\.Rproj$
 ^READMEfigs$
 ^extras$
+^.*\extras$
 ^papers$
 ^outputs$
 ^DISCLAIMER$

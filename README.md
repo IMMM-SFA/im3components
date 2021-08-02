@@ -15,11 +15,13 @@ Each component should follow this naming convention in all lower case separated 
 | :--: | :--: | :--: | :--: | :--: | :--: | -- |
 | Python | `gcam_cerf_expansion_plan` | GCAM | TBD | CERF | TBD | converts a GCAM-USA electricity capacity expansion plan into the format needed for CERF's inputs. |
 | R | `gcam_modelx_sum` | GCAM | TBD | ModelX | TBD | example function to represent data from GCAM being converted for some use by ModelX (fake model) |
+|R| `pop_gcam_process` | raw pop data | IMMM-SFA/statepop: v0.1.0 | GCAM | Branch: [zk/feature/gcam-usa-im3](https://stash.pnnl.gov/projects/JGCRI/repos/gcam-core/browse?at=refs%2Fheads%2Fzk%2Ffeature%2Fgcam-usa-im3)| process raw popultation by state for GCAM scenarios.|
 | R | `wrf_xanthos_resample` | wrf | TBD | xanthos | v2.4.0 | resample from WRF hourly, 12kmx12km data to Xanthos monthly, 0.5x0.5deg grid for each WRF parameter selected.|
 | python | `wrf_xanthos_to_npy` | wrf | TBD | xanthos | v2.4.0 | convert .csv file out from wrf_xanthos_resample to .npy for xanthos|
 | bash | `wrf_xanthos_process.sh` | wrf | TBD | xanthos | v2.4.0 | run wrf_xanthos_process.R and wrf_xanthos_process.py on NERSC|
 | R | `wrf_xanthos_process.R` | wrf | TBD | xanthos | v2.4.0 | run wrf_xanthos_resample on NERSC|
 | Python | `wrf_xanthos_process.py` | wrf | TBD | xanthos | v2.4.0 | run wrf_xanthos_to_npy on NERSC|
+
 
 
 ## Contribute components
@@ -32,6 +34,17 @@ To add a new component:
  - create a pull requests and set a member of our DSC team as a reviewer; the pull request description should include a description of the desired functionality and the location of any data needed to conduct tests
  - once the pull requests has been reviewed, accepted, and all test are passing this will be merged into the master and a new version will be released
 
+
+## Raw Population by State to GCAM
+Work flow to process raw population data to GCAM
+- Data has been processed using the im3components R function: `im3components::pop_gcam_process()`
+- The processed data has been included into GCAM and pushed to the branch: [zk/feature/gcam-usa-im3](https://stash.pnnl.gov/projects/JGCRI/repos/gcam-core/browse?at=refs%2Fheads%2Fzk%2Ffeature%2Fgcam-usa-im3)
+- The particular commit is: [2d77115a78e](https://stash.pnnl.gov/projects/JGCRI/repos/gcam-core/commits/2d77115a78eb5ed32f7d626c5d26390b65028f8b)
+- Files modified in the branch are:
+-- ./input/gcamdata/R/LA100.Socioeconomics.R
+-- ./input/gcamdata/R/L201.socioeconomics_USA.R
+-- ./input/gcamdata/inst/extdata/gcam-usa/NCAR_SSP_pop_state.csv (File Added)
+- File NCAR_SSP_pop_state.csv was created using the function from this package: im3components::pop_gcam_process()
 
 ## WRF to Xanthos
 Work flow for WRF to Xanthos data processing:
