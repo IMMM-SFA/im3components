@@ -41,10 +41,14 @@ Work flow to process raw population data to GCAM
 - The processed data has been included into GCAM and pushed to the branch: [zk/feature/gcam-usa-im3](https://stash.pnnl.gov/projects/JGCRI/repos/gcam-core/browse?at=refs%2Fheads%2Fzk%2Ffeature%2Fgcam-usa-im3)
 - The particular commit is: [2d77115a78e](https://stash.pnnl.gov/projects/JGCRI/repos/gcam-core/commits/2d77115a78eb5ed32f7d626c5d26390b65028f8b)
 - Files modified in the branch are:
-    - ./input/gcamdata/R/LA100.Socioeconomics.R
-    - ./input/gcamdata/R/L201.socioeconomics_USA.R
-    - ./input/gcamdata/inst/extdata/gcam-usa/NCAR_SSP_pop_state.csv (File Added)
+    - /input/gcamdata/R/LA100.Socioeconomics.R
+    - /input/gcamdata/R/L201.socioeconomics_USA.R
+    - /input/gcamdata/inst/extdata/gcam-usa/NCAR_SSP_pop_state.csv (File Added)
 - File NCAR_SSP_pop_state.csv was created using the function from this package: im3components::pop_gcam_process()
+- Raw Data Sources:
+   - Publication: Jiang, Leiwen, et al. 2020 "Population scenarios for US states consistent with shared socioeconomic pathways." Environmental Research Letters 15.9 (2020): 094097
+   - Paper: https://iopscience.iop.org/article/10.1088/1748-9326/aba5b1/pdf 
+   - Data: IMMM-SFA/statepop: v0.1.0: initial release: http://doi.org/10.5281/zenodo.3956703
 
 ## WRF to Xanthos
 Work flow for WRF to Xanthos data processing:
