@@ -137,6 +137,3 @@ dmypy.json
 
 # R history
 .Rhistory
-
-# NERSC files
-nersc/
