@@ -16,11 +16,18 @@ Each component should follow this naming convention in all lower case separated 
 | Python | `gcam_cerf_expansion_plan` | GCAM | TBD | CERF | TBD | converts a GCAM-USA electricity capacity expansion plan into the format needed for CERF's inputs. |
 | R | `gcam_modelx_sum` | GCAM | TBD | ModelX | TBD | example function to represent data from GCAM being converted for some use by ModelX (fake model) |
 |R| `pop_gcam_process` | raw pop data | IMMM-SFA/statepop: v0.1.0 | GCAM | Branch: [zk/feature/gcam-usa-im3](https://stash.pnnl.gov/projects/JGCRI/repos/gcam-core/browse?at=refs%2Fheads%2Fzk%2Ffeature%2Fgcam-usa-im3)| process raw popultation by state for GCAM scenarios.|
-| R | `wrf_xanthos_resample` | wrf | TBD | xanthos | v2.4.0 | resample from WRF hourly, 12kmx12km data to Xanthos monthly, 0.5x0.5deg grid for each WRF parameter selected.|
-| python | `wrf_xanthos_to_npy` | wrf | TBD | xanthos | v2.4.0 | convert .csv file out from wrf_xanthos_resample to .npy for xanthos|
-| bash | `wrf_xanthos_process.sh` | wrf | TBD | xanthos | v2.4.0 | run wrf_xanthos_process.R and wrf_xanthos_process.py on NERSC|
-| R | `wrf_xanthos_process.R` | wrf | TBD | xanthos | v2.4.0 | run wrf_xanthos_resample on NERSC|
-| Python | `wrf_xanthos_process.py` | wrf | TBD | xanthos | v2.4.0 | run wrf_xanthos_to_npy on NERSC|
+| R | `wrf_xanthos_process.R` | wrf | TBD | xanthos | v2.4.0 | Resample from WRF hourly, 12kmx12km data to Xanthos monthly, 0.5x0.5deg grid for each WRF parameter selected. Contains multiple functions described in wrokflow below.|
+| python | `wrf_xanthos_process.py` | wrf | TBD | xanthos | v2.4.0 | Multiple functions described in workflow below to process wrf data for xanthos.|
+| NERSC | `wrf_xanthos_preprocess_historical.sh` | wrf | TBD | xanthos | v2.4.0 | run wrf_xanthos_preprocess_historical.R on NERSC|
+| NERSC | `wrf_xanthos_preprocess_historical.R` | wrf | TBD | xanthos | v2.4.0 | preprocess WRF historical files from in parallel batches from /global/cfs/cdirs/m2702/gsharing/CONUS_TGW_WRF_Historical|
+| NERSC | `wrf_xanthos_process_historical.sh` | wrf | TBD | xanthos | v2.4.0 | run wrf_xanthos_process_historical.R and wrf_xanthos_process_historical.py on NERSC|
+| NERSC | `wrf_xanthos_process_historical.R` | wrf | TBD | xanthos | v2.4.0 | run resample_wrf_hourly_to_month on NERSC|
+| NERSC | `wrf_xanthos_process_historical.py` | wrf | TBD | xanthos | v2.4.0 | run wrf_xanthos_to_npy on NERSC|
+| NERSC | `wrf_xanthos_preprocess_ssp585_hot_near.sh` | wrf | TBD | xanthos | v2.4.0 | run wrf_xanthos_preprocess_ssp585_hot_near.R on NERSC|
+| NERSC | `wrf_xanthos_preprocess_ssp585_hot_near.R` | wrf | TBD | xanthos | v2.4.0 | preprocess WRF ssp585_hot_near files from in parallel batches from /global/cfs/cdirs/m2702/gsharing/CONUS_TGW_WRF_SSP585_HOT_NEAR|
+| NERSC | `wrf_xanthos_process_ssp585_hot_near.sh` | wrf | TBD | xanthos | v2.4.0 | run wrf_xanthos_process_ssp585_hot_near.R and wrf_xanthos_process_ssp585_hot_near.py on NERSC|
+| NERSC | `wrf_xanthos_process_ssp585_hot_near.R` | wrf | TBD | xanthos | v2.4.0 | run resample_wrf_hourly_to_month on NERSC|
+| NERSC | `wrf_xanthos_process_ssp585_hot_near.py` | wrf | TBD | xanthos | v2.4.0 | run wrf_xanthos_to_npy on NERSC|
 
 
 
@@ -55,8 +62,22 @@ Work flow for WRF to Xanthos data processing:
 - cd /global/cfs/cdirs/m2702/gcamusa/wrf_to_xanthos
 - Modify the 'ncdf_path_i' in /global/cfs/cdirs/m2702/gcamusa/wrf_to_xanthos/wrf_to_xanthos_process.R to point to the folder or files to processing
 - WRF files are being hosted at: /global/cfs/cdirs/m2702/gsharing
-- sbatch wrf_to_xanthos.sh
+# Preprocess historical data
+- sbatch wrf_to_xanthos_preprocess_historical.sh # Which needs to be run in batches due to space limitations (Set #SBATCH --array=0-15 and then 16-32 then 33 to 50)
 - squeue -u USERNAME # To see progress
-- Outputs from the wrf_to_xanthos_process.R script in .csv format at: cd /global/cfs/cdirs/m2702/gcamusa/wrf_to_xanthos/outputs_wrf_to_xanthos_process_R
-- Outputs from the wrf_to_xanthos_process.py script in .npy format at: cd /global/cfs/cdirs/m2702/gcamusa/wrf_to_xanthos/outputs_wrf_to_xanthos_process_python
+- Outputs from the wrf_to_xanthos_preprocess_historical.R script in .csv format at: cd /global/cfs/cdirs/m2702/gcamusa/wrf_to_xanthos/output_wrf_to_xanthos_process_historical_R_XX where XX is the batch number.
+# Process historical data
+- sbatch wrf_to_xanthos_process_historical.sh
+- squeue -u USERNAME # To see progress
+- Outputs from the wrf_to_xanthos_process_historical.R script in .csv format at: cd /global/cfs/cdirs/m2702/gcamusa/wrf_to_xanthos/outputs_wrf_to_xanthos_process_historical_R
+- Outputs from the wrf_to_xanthos_process_historical.py script in .npy format at: cd /global/cfs/cdirs/m2702/gcamusa/wrf_to_xanthos/outputs_wrf_to_xanthos_process_historical_python
+# Preprocess ssp585_hot_near data
+- sbatch wrf_to_xanthos_preprocess_ssp585_hot_near.sh # Which needs to be run in batches due to space limitations (Set #SBATCH --array=0-15 and then 16-32 then 33 to 50)
+- squeue -u USERNAME # To see progress
+- Outputs from the wrf_to_xanthos_preprocess_ssp585_hot_near.R script in .csv format at: cd /global/cfs/cdirs/m2702/gcamusa/wrf_to_xanthos/output_wrf_to_xanthos_process_ssp585_hot_near_R_XX where XX is the batch number.
+# Process ssp585_hot_near data
+- sbatch wrf_to_xanthos_process_ssp585_hot_near.sh
+- squeue -u USERNAME # To see progress
+- Outputs from the wrf_to_xanthos_process_ssp585_hot_near.R script in .csv format at: cd /global/cfs/cdirs/m2702/gcamusa/wrf_to_xanthos/outputs_wrf_to_xanthos_process_ssp585_hot_near_R
+- Outputs from the wrf_to_xanthos_process_ssp585_hot_near.py script in .npy format at: cd /global/cfs/cdirs/m2702/gcamusa/wrf_to_xanthos/outputs_wrf_to_xanthos_process_ssp585_hot_near_python
 

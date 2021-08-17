@@ -1,4 +1,5 @@
 from im3components.gcam_cerf_expansion_plan import gcam_cerf_expansion_plan
 from im3components.wrf_xanthos_to_npy import wrf_xanthos_to_npy
+from im3components.utils_replace_nan_array import utils_replace_nan_array
 
-__all__ = ['gcam_cerf_expansion_plan','wrf_xanthos_to_npy']
+__all__ = ['gcam_cerf_expansion_plan','wrf_xanthos_to_npy','utils_replace_nan_array']
