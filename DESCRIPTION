@@ -20,10 +20,13 @@ Imports:
 	stats,
 	magrittr,
 	data.table,
-	tidyr
+	tidyr,
+	reticulate,
+	purrr,
+	gcamdata
 Suggests: 
     testthat
-Remotes: 
+Remotes:
 	github::JGCRI/gcamdata
 Depends: 
     R (>= 2.10)

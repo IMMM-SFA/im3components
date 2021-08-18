@@ -2,19 +2,11 @@
 % Please edit documentation in R/wrf_xanthos_process.R
 \name{xanthos_gcam_create_xml}
 \alias{xanthos_gcam_create_xml}
-\title{xanthos_replace_data}
+\title{xanthos_gcam_create_xml}
 \source{
-Method based on https://rpubs.com/markpayne/132500
-
 Method based on https://rpubs.com/markpayne/132500
 }
 \usage{
-xanthos_gcam_create_xml(
-  xanthos_runoff_csv = NULL,
-  gcamdata_folder = NULL,
-  out_dir = NULL
-)
-
 xanthos_gcam_create_xml(
   xanthos_runoff_csv = NULL,
   gcamdata_folder = NULL,
@@ -30,13 +22,8 @@ xanthos_gcam_create_xml(
 }
 \value{
 xml
-
-xml
 }
 \description{
-This function creates xmls for GCAM from raw xanthos outputs
-a given dataframe. Returns a long dataframe with lat lon and parameter from the netcdf chosen.
-
 This function creates xmls for GCAM from raw xanthos outputs
 a given dataframe. Returns a long dataframe with lat lon and parameter from the netcdf chosen.
 }

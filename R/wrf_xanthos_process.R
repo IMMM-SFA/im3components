@@ -107,20 +107,29 @@ resample_wrf_hourly_to_month <- function(ncdf_path = NULL,
         dplyr::select(-time)%>%
         dplyr::group_by(lon,lat,param,year,month, unit)
 
-      # Join to main table
-      resampled_monthly_df <-
-        resampled_monthly_df %>%
-        dplyr::bind_rows(resampled_monthly_df_i)
-
       if(tolower(aggregation_method_i) == "sum"){
-        resampled_monthly_df <- resampled_monthly_df %>%
+        resampled_monthly_df_i <- resampled_monthly_df_i %>%
           dplyr::group_by(lon,lat,param,year,month, unit) %>%
           dplyr::summarize(value = sum(value,na.rm=T))}
 
       if(tolower(aggregation_method_i) == "mean"){
-        resampled_monthly_df <- resampled_monthly_df %>%
+        resampled_monthly_df_i <- resampled_monthly_df_i %>%
           dplyr::group_by(lon,lat,param,year,month, unit) %>%
           dplyr::summarize(value = mean(value,na.rm=T))}
+
+      # Calculate min daily temperature if param T2 exists
+      if(param_i == "T2"){
+        resampled_monthly_df_i <- resampled_monthly_df_i %>%
+          dplyr::bind_rows(resampled_monthly_df_i %>%
+                             dplyr::group_by(lon,lat,param,year,month, unit) %>%
+                             dplyr::summarize(value = min(value,na.rm=T)) %>%
+                             dplyr::mutate(param="T2min")
+                           )}
+
+      # Join to main table
+      resampled_monthly_df <-
+        resampled_monthly_df %>%
+        dplyr::bind_rows(resampled_monthly_df_i)
 
       print(paste0("Aggregation to month for file: ", ncdf_path_i,
                    " for param: ", param_i,
@@ -183,7 +192,7 @@ resample_wrf_hourly_to_month <- function(ncdf_path = NULL,
   }
 
   # Temp deg C
-  # If T2 is exists whic is in K
+  # If T2 is exists which is in K
   if(all(c("T2") %in% params)){
 
     print("Calculating new param 'tempDegC' temperature in Degree Celcius from T2 for Xanthos.")
@@ -199,6 +208,25 @@ resample_wrf_hourly_to_month <- function(ncdf_path = NULL,
       dplyr::bind_rows(resampled_monthly_df_tdegc)
 
   }
+
+  # Temp deg C
+  # If T2min exists which is in K
+  if(all(c("T2") %in% params)){
+
+    print("Calculating new param 'tempDegCmin' min Daily temperature in Degree Celcius from T2 for Xanthos.")
+
+    resampled_monthly_df_tdegcmin <- resampled_monthly_df %>%
+      dplyr::ungroup() %>%
+      dplyr::filter(param %in% c("T2min")) %>%
+      dplyr::mutate(value = value - 273.15)%>%
+      dplyr::mutate(param = "tempDegCmin",
+                    unit = "degC")
+
+    resampled_monthly_df <- resampled_monthly_df %>%
+      dplyr::bind_rows(resampled_monthly_df_tdegcmin)
+
+  }
+
 
 
   # Save data
@@ -437,39 +465,6 @@ resample_wrf_to_df <- function(ncdf_path = NULL,
 }
 
 
-#' xanthos_replace_data
-#'
-#' This function creates xmls for GCAM from raw xanthos outputs
-#' a given dataframe. Returns a long dataframe with lat lon and parameter from the netcdf chosen.
-#' @param xanthos_runoff_csv Default = NULL. Path to xanthos basin runoff .csv outputs file.
-#' @param gcamdata_folder Default = NULL. Path to gcamdatafolder.
-#' @param out_dir Default = NULL. Path to folder to save outputs in.
-#' @importFrom magrittr %>%
-#' @importFrom gcamdata left_join_error_no_match create_xml add_xml_data run_xml_conversion
-#' @source Method based on https://rpubs.com/markpayne/132500
-#' @return xml
-#' @export
-
-xanthos_gcam_create_xml <- function(xanthos_runoff_csv = NULL,
-                                    gcamdata_folder = NULL,
-                                    out_dir = NULL) {
-
-
-  print("Starting xanthos_gcam_create_xml...")
-
-  library(reticulate)
-  np <- import("numpy")
-  # data reading
-  mat <- np$load("fmat.npy")
-
-  print("Finished xanthos_gcam_create_xml.")
-
-  return(df)
-
-}
-
-
-
 #' xanthos_gcam_create_xml
 #'
 #' This function creates xmls for GCAM from raw xanthos outputs
@@ -478,7 +473,6 @@ xanthos_gcam_create_xml <- function(xanthos_runoff_csv = NULL,
 #' @param gcamdata_folder Default = NULL. Path to gcamdatafolder.
 #' @param out_dir Default = NULL. Path to folder to save outputs in.
 #' @importFrom magrittr %>%
-#' @importFrom gcamdata left_join_error_no_match create_xml add_xml_data run_xml_conversion
 #' @source Method based on https://rpubs.com/markpayne/132500
 #' @return xml
 #' @export
@@ -489,6 +483,13 @@ xanthos_gcam_create_xml <- function(xanthos_runoff_csv = NULL,
 
 
   print("Starting xanthos_gcam_create_xml...")
+
+  # Initialize
+  NULL -> Basin_name -> GCAM_basin_ID -> GCAM_region_ID -> GLU -> ISO ->
+    basin_id -> basin_name -> bind_rows -> id -> iso -> maxSubResource ->
+    name -> region -> renewresource -> sub.renewable.resource -> water_type ->
+    year
+
 
   # Read in xanthos output file and region files
   gcamdatafolder = gcamdata_folder
@@ -504,57 +505,57 @@ xanthos_gcam_create_xml <- function(xanthos_runoff_csv = NULL,
     water_mapping_R_GLU_B_W_Ws_share <- data.table::fread(paste(gcamdatafolder,"/outputs/L103.water_mapping_R_GLU_B_W_Ws_share.csv",sep=""),header=TRUE)
     water_mapping_R_B_W_Ws_share <- data.table::fread(paste(gcamdatafolder,"/outputs/L103.water_mapping_R_B_W_Ws_share.csv",sep=""),header=TRUE)
 
-    # Basin_to_country_mapping table include only one set of distinct basins
+    # Basin_to_country_mapping table include only one set of dplyr::distinct basins
     # that are mapped to a single country with largest basin share.
     # Assign GCAM region name to each basin.
     # Basin with overlapping GCAM regions assign to region with largest basin area.
     basin_to_country_mapping %>%
-      rename(iso = ISO) %>%
-      mutate(iso = tolower(iso)) %>%
-      left_join(iso_GCAM_regID, by = "iso") %>%
+      dplyr::rename(iso = ISO) %>%
+      dplyr::mutate(iso = tolower(iso)) %>%
+      dplyr::left_join(iso_GCAM_regID, by = "iso") %>%
       # ^^ non-restrictive join required (NA values generated for unmapped iso)
       # basins without gcam region mapping excluded (right join)
       # Antarctica not assigned
-      right_join(GCAM_region_names, by = "GCAM_region_ID") %>%
-      rename(basin_id = GCAM_basin_ID,
+      dplyr::right_join(GCAM_region_names, by = "GCAM_region_ID") %>%
+      dplyr::rename(basin_id = GCAM_basin_ID,
              basin_name = Basin_name) %>%
-      select(GCAM_region_ID, region, basin_id) %>%
-      arrange(region) ->
+      dplyr::select(GCAM_region_ID, region, basin_id) %>%
+      dplyr::arrange(region) ->
       RegionBasinHome
 
-    # identify basins without gcam region mapping (anti_join)
+    # identify basins without gcam region mapping (dplyr::anti_join)
     basin_to_country_mapping %>%
-      rename(iso = ISO) %>%
-      mutate(iso = tolower(iso)) %>%
-      left_join(iso_GCAM_regID, by = "iso") %>%
+      dplyr::rename(iso = ISO) %>%
+      dplyr::mutate(iso = tolower(iso)) %>%
+      dplyr::left_join(iso_GCAM_regID, by = "iso") %>%
       #not all iso included in basin mapping
       # ^^ non-restrictive join required (NA values generated for unmapped iso)
-      anti_join(GCAM_region_names, by = "GCAM_region_ID") ->
+      dplyr::anti_join(GCAM_region_names, by = "GCAM_region_ID") ->
       BasinNoRegion
 
     # create full set of region/basin combinations
     # some basins overlap multiple regions
     # Use left join to ensure only those basins in use by GCAM regions are included
     bind_rows(water_mapping_R_GLU_B_W_Ws_share %>%
-                rename(basin_id = GLU),
+                dplyr::rename(basin_id = GLU),
               water_mapping_R_B_W_Ws_share) %>%
-      select(GCAM_region_ID, basin_id, water_type) %>%
-      filter(water_type == "water withdrawals") %>%
-      distinct() %>%
-      left_join(basin_ids, by = "basin_id") %>%
+      dplyr::select(GCAM_region_ID, basin_id, water_type) %>%
+      dplyr::filter(water_type == "water withdrawals") %>%
+      dplyr::distinct() %>%
+      dplyr::left_join(basin_ids, by = "basin_id") %>%
       tibble::as_tibble()%>%
       # ^^ non-restrictive join required (NA values generated for unused basins)
-      left_join_error_no_match(GCAM_region_names, by = "GCAM_region_ID") %>%
-      mutate(water_type = "water withdrawals",
+      gcamdata::left_join_error_no_match(GCAM_region_names, by = "GCAM_region_ID") %>%
+      dplyr::mutate(water_type = "water withdrawals",
              resource = paste(basin_name, water_type, sep="_")) %>%
-      arrange(region, basin_name) ->
+      dplyr::arrange(region, basin_name) ->
       L201.region_basin
 
     # create unique set of region/basin combination with
     # basin contained by home region (region with largest basin area)
     L201.region_basin %>%
-      inner_join(RegionBasinHome, by = c("basin_id","GCAM_region_ID","region")) %>%
-      arrange(region, basin_name) ->
+      dplyr::inner_join(RegionBasinHome, by = c("basin_id","GCAM_region_ID","region")) %>%
+      dplyr::arrange(region, basin_name) ->
       L201.region_basin_home
 
     # Re-format to format for ./input/gcamdata/outputs/L201.GrdRenwRsrcMax_runoff.csv which include
@@ -568,12 +569,12 @@ xanthos_gcam_create_xml <- function(xanthos_runoff_csv = NULL,
       dplyr::mutate(sub.renewable.resource="runoff")%>%
       dplyr::select(id=basin_id,region=region,renewresource=basin_name, sub.renewable.resource, year,maxSubResource);
 
-    df %>% filter(is.na(renewresource), year==1975)
-    df %>% filter(year==1975) %>% nrow()
-    df %>% filter(region=="USA",year==1975)%>%arrange(renewresource)
-    df %>% filter(region=="China",year==1975)%>%arrange(renewresource)
-    df %>% filter(region=="Southeast Asia",year==1975)%>%arrange(renewresource)
-    df %>% filter(renewresource=="Hong-Red River")%>%arrange(renewresource)
+    df %>% dplyr::filter(is.na(renewresource), year==1975)
+    df %>% dplyr::filter(year==1975) %>% nrow()
+    df %>% dplyr::filter(region=="USA",year==1975)%>%dplyr::arrange(renewresource)
+    df %>% dplyr::filter(region=="China",year==1975)%>%dplyr::arrange(renewresource)
+    df %>% dplyr::filter(region=="Southeast Asia",year==1975)%>%dplyr::arrange(renewresource)
+    df %>% dplyr::filter(renewresource=="Hong-Red River")%>%dplyr::arrange(renewresource)
     df$year%>%unique()
   }
 
@@ -594,9 +595,9 @@ xanthos_gcam_create_xml <- function(xanthos_runoff_csv = NULL,
 
     fname <- paste0(out_dirx,"/",gsub(".csv",".xml",basename(xanthos_runoff_csv))); fname
 
-    create_xml(fname) %>%
-      add_xml_data(df, "GrdRenewRsrcMaxNoFillOut")%>%
-      run_xml_conversion()
+    gcamdata::create_xml(fname) %>%
+      gcamdata::add_xml_data(df, "GrdRenewRsrcMaxNoFillOut")%>%
+      gcamdata::run_xml_conversion()
 
     print(paste0("File saved as ",fname))
   }
@@ -683,7 +684,7 @@ xanthos_npy_expand <- function(base_npy = NULL,
   if(nrow(target_df)!=nrow(base_df_expand)){stop(paste0("target_df and base_df_expand must have the same number of rows."))}
 
   # Create out_df with na data from target_df replaced with base_df_subset data
-  out_df <- purrr::map2_dfc(target_df, base_df_expand, coalesce)
+  out_df <- purrr::map2_dfc(target_df, base_df_expand, dplyr::coalesce)
 
   # Save as npy
   if(T){
@@ -693,9 +694,8 @@ xanthos_npy_expand <- function(base_npy = NULL,
     } else if (dir.exists(out_dir)){
       out_dirx  <- out_dir
     } else {
-      print(paste0("out_dir provided does not exist: ", out_dir))
-      print(paste0("Saving in : ", dirname(target_npy)))
-      out_dirx <- dirname(target_npy)
+      dir.create(out_dir)
+      out_dirx <- out_dir
     }
 
     fname <- paste0(out_dirx,"/",gsub(".npy","_us_global.npy",basename(target_npy))); fname
@@ -706,6 +706,6 @@ xanthos_npy_expand <- function(base_npy = NULL,
 
   print("Finished xanthos_npy_expand.")
 
-  invisible(out_df)
+  invisible(list(base_df=base_df, target_df=target_df,out_df=out_df))
 
 }
