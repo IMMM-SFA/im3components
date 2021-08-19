@@ -12,12 +12,14 @@ ncdf_path_i = paste0("C:/Z/models/xanthosWRFData/wrfout_d01_2009-01-01_00-00-00.
 ncdf_path_i = paste0("C:/Z/models/xanthosWRFData/wrfout_d01_2009-01-08_01-00-00.nc")
 ncdf_path_i = paste0("C:/Z/models/xanthosWRFData/wrfout_d01_1979-01-01_00-00-00.nc")
 ncdf_path_i = paste0("C:/Z/models/xanthosWRFData")
-target_grid_i = "C:/Z/models/xanthos/example/input/reference/coordinates.csv"
+target_grid_i = im3components::data_coordinates_xanthos_reference
 params_i = c("RAINC","Q2","PSFC","T2","GLW","SWDOWN","V10","U10")
+params_i = c("T2")
 out_dir_i='output'
 save_i = T
 ncdf_resampled_i = im3components::data_ncdf_resampled_wrf_xanthos
 aggregation_method_i = c("mean","mean","mean","mean","mean","mean","mean","mean")
+aggregation_method_i="mean"
 
 im3components::resample_wrf_hourly_to_month(
   ncdf_path = ncdf_path_i,
@@ -26,7 +28,19 @@ im3components::resample_wrf_hourly_to_month(
   aggregation_method = aggregation_method_i,
   out_dir= out_dir_i,
   save = save_i,
-  ncdf_resampled = ncdf_resampled_i)->a
+  ncdf_resampled = ncdf_resampled_i
+  )->a
+
+# Check
+# a %>% dplyr::select(-unit) %>% tidyr::spread(key="param",value="value") %>%as.data.frame()
+
+# ncdf_path = ncdf_path_i
+# target_grid = target_grid_i
+# params = params_i
+# aggregation_method = aggregation_method_i
+# out_dir= out_dir_i
+# save = save_i
+# ncdf_resampled = ncdf_resampled_i
 
 # Plot Map to View Data
 library(dplyr); library(rmap)

@@ -70,8 +70,8 @@ resample_wrf_hourly_to_month <- function(ncdf_path = NULL,
   }
 
 
-  # For each file resample to target grid and aggregate to monthly
-  resampled_monthly_df <- tibble::tibble()
+  # For each file resample to target grid and aggregate
+  resampled_df_comb <- tibble::tibble()
   for(ncdf_path_i in ncdf_paths){
 
     print(paste0("Starting aggregation to month for file: ", ncdf_path_i, "..."))
@@ -88,55 +88,58 @@ resample_wrf_hourly_to_month <- function(ncdf_path = NULL,
 
     # Parse out Month, year, hour
     resampled_df_parse <- resampled_df %>%
-      # Using time POSIXct but much slower
-      # dplyr::mutate(time = as.POSIXct(time,format='%Y-%m-%d_%H:%M:%S'),
-      #               year = format(time, format = "%Y"),
-      #               month = format(time, format = "%m"))
-      # Using gsub since we know format and much faster
       dplyr::mutate(year = substr(time,1,4),
                     month = substr(time,6,7))
 
-    # Aggregate to month
-    for(i in 1:length(params)){
-
-      param_i = params[i]
-      aggregation_method_i = aggregation_method[i]
-
-      resampled_monthly_df_i <- resampled_df_parse %>%
-        dplyr::filter(param == param_i) %>%
-        dplyr::select(-time)%>%
-        dplyr::group_by(lon,lat,param,year,month, unit)
-
-      if(tolower(aggregation_method_i) == "sum"){
-        resampled_monthly_df_i <- resampled_monthly_df_i %>%
-          dplyr::group_by(lon,lat,param,year,month, unit) %>%
-          dplyr::summarize(value = sum(value,na.rm=T))}
-
-      if(tolower(aggregation_method_i) == "mean"){
-        resampled_monthly_df_i <- resampled_monthly_df_i %>%
-          dplyr::group_by(lon,lat,param,year,month, unit) %>%
-          dplyr::summarize(value = mean(value,na.rm=T))}
-
-      # Calculate min daily temperature if param T2 exists
-      if(param_i == "T2"){
-        resampled_monthly_df_i <- resampled_monthly_df_i %>%
-          dplyr::bind_rows(resampled_monthly_df_i %>%
-                             dplyr::group_by(lon,lat,param,year,month, unit) %>%
-                             dplyr::summarize(value = min(value,na.rm=T)) %>%
-                             dplyr::mutate(param="T2min")
-                           )}
-
-      # Join to main table
-      resampled_monthly_df <-
-        resampled_monthly_df %>%
-        dplyr::bind_rows(resampled_monthly_df_i)
-
-      print(paste0("Aggregation to month for file: ", ncdf_path_i,
-                   " for param: ", param_i,
-                   " using aggregation method: ", aggregation_method_i, " completed."))
-
-    }
+    # Join to main table
+    resampled_df_comb <-
+      resampled_df_comb %>%
+      dplyr::bind_rows(resampled_df_parse)
   }
+  resampled_df_comb
+
+  # Aggregate to month
+  resampled_monthly_df <- tibble::tibble()
+  for(i in 1:length(params)){
+
+    param_i = params[i]
+    aggregation_method_i = aggregation_method[i]
+
+    resampled_monthly_df_i <- resampled_df_comb %>%
+      dplyr::filter(param == param_i) %>%
+      dplyr::select(-time)%>%
+      dplyr::group_by(lon,lat,param,year,month, unit)
+
+    if(tolower(aggregation_method_i) == "sum"){
+      resampled_monthly_df_i <- resampled_monthly_df_i %>%
+        dplyr::group_by(lon,lat,param,year,month, unit) %>%
+        dplyr::summarize(value = sum(value,na.rm=T))}
+
+    if(tolower(aggregation_method_i) == "mean"){
+      resampled_monthly_df_i <- resampled_monthly_df_i %>%
+        dplyr::group_by(lon,lat,param,year,month, unit) %>%
+        dplyr::summarize(value = mean(value,na.rm=T))}
+
+    # Calculate min daily temperature if param T2 exists
+    if(param_i == "T2"){
+      resampled_monthly_df_i <- resampled_monthly_df_i %>%
+        dplyr::bind_rows(resampled_monthly_df_i %>%
+                           dplyr::group_by(lon,lat,param,year,month, unit) %>%
+                           dplyr::summarize(value = min(value,na.rm=T)) %>%
+                           dplyr::mutate(param="T2min")
+        )}
+
+    # Join to main table
+    resampled_monthly_df <-
+      resampled_monthly_df %>%
+      dplyr::bind_rows(resampled_monthly_df_i)
+
+    print(paste0("Aggregation to month for file: ", ncdf_path_i,
+                 " for param: ", param_i,
+                 " using aggregation method: ", aggregation_method_i, " completed."))
+
+  }
+  resampled_monthly_df
 
   # Calculate Xanthos specific Params
 
@@ -228,6 +231,9 @@ resample_wrf_hourly_to_month <- function(ncdf_path = NULL,
   }
 
 
+  # Keep Unique
+  resampled_monthly_df <- resampled_monthly_df %>%
+    dplyr::distinct()
 
   # Save data
   if(save){
