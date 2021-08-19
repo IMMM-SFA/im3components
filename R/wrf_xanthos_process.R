@@ -108,35 +108,46 @@ resample_wrf_hourly_to_month <- function(ncdf_path = NULL,
     resampled_monthly_df_i <- resampled_df_comb %>%
       dplyr::filter(param == param_i) %>%
       dplyr::select(-time)%>%
-      dplyr::group_by(lon,lat,param,year,month, unit)
-
-    if(tolower(aggregation_method_i) == "sum"){
-      resampled_monthly_df_i <- resampled_monthly_df_i %>%
-        dplyr::group_by(lon,lat,param,year,month, unit) %>%
-        dplyr::summarize(value = sum(value,na.rm=T))}
-
-    if(tolower(aggregation_method_i) == "mean"){
-      resampled_monthly_df_i <- resampled_monthly_df_i %>%
-        dplyr::group_by(lon,lat,param,year,month, unit) %>%
-        dplyr::summarize(value = mean(value,na.rm=T))}
+      dplyr::group_by(lon,lat,param,year,month, unit)%>%
+      dplyr::ungroup()
 
     # Calculate min daily temperature if param T2 exists
     if(param_i == "T2"){
-      resampled_monthly_df_i <- resampled_monthly_df_i %>%
-        dplyr::bind_rows(resampled_monthly_df_i %>%
+      resampled_monthly_df_i_grouped <- resampled_monthly_df_i %>%
                            dplyr::group_by(lon,lat,param,year,month, unit) %>%
                            dplyr::summarize(value = min(value,na.rm=T)) %>%
-                           dplyr::mutate(param="T2min")
-        )}
+                           dplyr::mutate(param="T2min") %>%
+                           dplyr::ungroup() %>%
+        dplyr::bind_rows(resampled_monthly_df_i %>%
+                           dplyr::group_by(lon,lat,param,year,month, unit) %>%
+                           dplyr::summarize(value = mean(value,na.rm=T)) %>%
+                           dplyr::ungroup())
+        } else if(tolower(aggregation_method_i) == "sum"){
+          resampled_monthly_df_i_grouped <- resampled_monthly_df_i %>%
+            dplyr::group_by(lon,lat,param,year,month, unit) %>%
+            dplyr::summarize(value = sum(value,na.rm=T)) %>%
+            dplyr::ungroup()
+          } else if(tolower(aggregation_method_i) == "mean"){
+            resampled_monthly_df_i_grouped <- resampled_monthly_df_i %>%
+              dplyr::group_by(lon,lat,param,year,month, unit) %>%
+              dplyr::summarize(value = mean(value,na.rm=T)) %>%
+              dplyr::ungroup()
+            }
 
     # Join to main table
     resampled_monthly_df <-
       resampled_monthly_df %>%
-      dplyr::bind_rows(resampled_monthly_df_i)
+      dplyr::bind_rows(resampled_monthly_df_i_grouped) %>%
+      dplyr::distinct()
 
     print(paste0("Aggregation to month for file: ", ncdf_path_i,
                  " for param: ", param_i,
                  " using aggregation method: ", aggregation_method_i, " completed."))
+
+    if(param_i == "T2"){
+    print(paste0("Aggregation to month for file: ", ncdf_path_i,
+                 " for param: T2min",
+                 " using aggregation method: ", aggregation_method_i, " completed."))}
 
   }
   resampled_monthly_df
