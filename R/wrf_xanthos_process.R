@@ -30,7 +30,7 @@ resample_wrf_hourly_to_month <- function(ncdf_path = NULL,
   print("resample_wrf_hourly_to_month...")
 
   # Initialize Constants
-  NULL->PSFC->Q2->T2->U10->V10->lat->latid->lon->lonid->month->param->rh->
+  NULL->RAINC->RAINNC->RAINSH->PSFC->Q2->T2->U10->V10->lat->latid->lon->lonid->month->param->rh->
     time->unit->v->value->year
 
   # Check if ncdf_path is a folder or list of files
@@ -98,8 +98,11 @@ resample_wrf_hourly_to_month <- function(ncdf_path = NULL,
   }
   resampled_df_comb
 
+
   # Aggregate to month
   resampled_monthly_df <- tibble::tibble()
+  counter_rain = 0
+
   for(i in 1:length(params)){
 
     param_i = params[i]
@@ -107,9 +110,7 @@ resample_wrf_hourly_to_month <- function(ncdf_path = NULL,
 
     resampled_monthly_df_i <- resampled_df_comb %>%
       dplyr::filter(param == param_i) %>%
-      dplyr::select(-time)%>%
-      dplyr::group_by(lon,lat,param,year,month, unit)%>%
-      dplyr::ungroup()
+      dplyr::select(-time)
 
     # Calculate min daily temperature if param T2 exists
     if(param_i == "T2"){
@@ -122,17 +123,49 @@ resample_wrf_hourly_to_month <- function(ncdf_path = NULL,
                            dplyr::group_by(lon,lat,param,year,month, unit) %>%
                            dplyr::summarize(value = mean(value,na.rm=T)) %>%
                            dplyr::ungroup())
-        } else if(tolower(aggregation_method_i) == "sum"){
-          resampled_monthly_df_i_grouped <- resampled_monthly_df_i %>%
-            dplyr::group_by(lon,lat,param,year,month, unit) %>%
-            dplyr::summarize(value = sum(value,na.rm=T)) %>%
-            dplyr::ungroup()
-          } else if(tolower(aggregation_method_i) == "mean"){
-            resampled_monthly_df_i_grouped <- resampled_monthly_df_i %>%
-              dplyr::group_by(lon,lat,param,year,month, unit) %>%
-              dplyr::summarize(value = mean(value,na.rm=T)) %>%
-              dplyr::ungroup()
-            }
+    }
+
+
+    # Calculate Accumulated Rain over months
+    if(grepl("RAIN",param_i)){
+      if(counter_rain==0){
+
+        resampled_monthly_df_i_grouped <-  resampled_df_comb %>%
+          dplyr::select(-time) %>%
+          dplyr::filter(grepl("RAIN",param)) %>%
+          dplyr::group_by(lon,lat,unit,year,month) %>%
+          dplyr::summarize(value=sum(value,na.rm=T))%>%
+          dplyr::ungroup() %>%
+          dplyr::mutate(param="RAIN") %>%
+          dplyr::group_by(lon,lat,param,unit) %>%
+          dplyr::arrange(lon,lat,param,unit,year,month)%>%
+          dplyr::mutate(value_diff = value-lag(value),
+                        value_diff = dplyr::if_else(is.na(value_diff),value,value_diff))%>%
+          dplyr::select(-value) %>%
+          dplyr::rename(value=value_diff); resampled_monthly_df_i_grouped
+
+        counter_rain = counter_rain+1 # Only calculate once
+      }
+    }
+
+
+    if(!grepl("T2|RAIN",param_i)){
+
+    if(tolower(aggregation_method_i) == "sum"){
+      resampled_monthly_df_i_grouped <- resampled_monthly_df_i %>%
+      dplyr::group_by(lon,lat,param,year,month, unit) %>%
+      dplyr::summarize(value = sum(value,na.rm=T)) %>%
+      dplyr::ungroup()
+      }
+
+    if(tolower(aggregation_method_i) == "mean"){
+      resampled_monthly_df_i_grouped <- resampled_monthly_df_i %>%
+      dplyr::group_by(lon,lat,param,year,month, unit) %>%
+      dplyr::summarize(value = mean(value,na.rm=T)) %>%
+      dplyr::ungroup()
+    }
+
+    }
 
     # Join to main table
     resampled_monthly_df <-
@@ -148,6 +181,13 @@ resample_wrf_hourly_to_month <- function(ncdf_path = NULL,
     print(paste0("Aggregation to month for file: ", ncdf_path_i,
                  " for param: T2min",
                  " using aggregation method: ", aggregation_method_i, " completed."))}
+
+    if(grepl("RAIN",param_i)){
+      if(counter_rain==0){
+      print(paste0("Aggregation to month for file: ", ncdf_path_i,
+                   " for param: RAIN",
+                   " using aggregation method: ", aggregation_method_i, " completed."))}
+    }
 
   }
   resampled_monthly_df
@@ -660,6 +700,7 @@ xanthos_npy_expand <- function(base_npy = NULL,
   target_npyx <- np$load(target_npy)
   target_npyr <- reticulate::py_to_r(target_npyx)
   target_df <- tibble::as_tibble(target_npyr)
+  is.na(target_df)<-sapply(target_df, is.infinite)
 
   # Make sure base_npy and target_npy have same number of rows
   if(nrow(base_df)!=nrow(target_df)){stop("base_npy and target_npy must have same number of rows.")}
@@ -688,9 +729,18 @@ xanthos_npy_expand <- function(base_npy = NULL,
   # Expand cols of base_df to repeat final year_month till end of target_year_name
   missing_names <- target_names[!target_names %in% base_names]; missing_names
   base_df_expand <- base_df_subset
+  base_df_expand_10yrmean <- base_df_expand %>%
+    mutate(id=1:n()) %>%
+    tidyr::gather(key="key",value="value", -id) %>%
+    dplyr::filter(key %in% base_names[max(1,(length(base_names)-12*10), na.rm=T):length(base_names)]) %>%
+    dplyr::group_by(id)%>%
+    dplyr::summarize(value=mean(value,na.rm=T)) %>%
+    dplyr::ungroup() %>%
+    dplyr::select(-id);
+  base_df_expand_10yrmean
   for(name_i in missing_names){
   base_df_expand <- base_df_expand %>%
-    dplyr::bind_cols(base_df_subset[,ncol(base_df_subset)] %>%
+    dplyr::bind_cols(base_df_expand_10yrmean %>%
                        magrittr::set_colnames(name_i))
   }
   base_df_expand[,c((ncol(base_df_expand)-5):ncol(base_df_expand))]
