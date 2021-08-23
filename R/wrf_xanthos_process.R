@@ -172,12 +172,11 @@ resample_wrf_hourly_to_month <- function(ncdf_path = NULL,
       dplyr::filter(param %in% c("Q2","T2","PSFC")) %>%
       dplyr::select(-unit) %>%
       tidyr::spread(key="param",value="value") %>%
-      dplyr::mutate(rh = Q2 / ( (pq0 / PSFC) * exp(a2 * (T2 - a3) / (T2 - a4)) ),
-                    unit = "percent") %>%
+      dplyr::mutate(value = Q2 / ( (pq0 / PSFC) * exp(a2 * (T2 - a3) / (T2 - a4)) ),
+                    unit = "percent",
+                    param= "rh") %>%
       dplyr::select(-PSFC,-Q2,-T2) %>%
-      dplyr::ungroup() %>%
-      dplyr::rename(param=rh) %>%
-      dplyr::mutate(param = "rh")
+      dplyr::ungroup()
 
     resampled_monthly_df <- resampled_monthly_df %>%
       dplyr::bind_rows(resampled_monthly_df_rh)
@@ -194,11 +193,10 @@ resample_wrf_hourly_to_month <- function(ncdf_path = NULL,
       dplyr::ungroup() %>%
       dplyr::filter(param %in% c("V10","U10")) %>%
       tidyr::spread(key="param",value="value") %>%
-      dplyr::mutate(v = sqrt(V10^2 + U10^2))%>%
+      dplyr::mutate(value = sqrt(V10^2 + U10^2),
+                    param="v")%>%
       dplyr::select(-V10,-U10) %>%
-      dplyr::ungroup() %>%
-      dplyr::rename(param=v) %>%
-      dplyr::mutate(param = "v")
+      dplyr::ungroup()
 
     resampled_monthly_df <- resampled_monthly_df %>%
       dplyr::bind_rows(resampled_monthly_df_v)
@@ -682,6 +680,7 @@ xanthos_npy_expand <- function(base_npy = NULL,
 
   # Assign names to base_npy
   names(base_df)  <- base_names
+  names(target_df) <- target_names
 
   # Subset base_df based on available columns in target_npy
   base_df_subset <- base_df[,names(base_df) %in% target_names]
