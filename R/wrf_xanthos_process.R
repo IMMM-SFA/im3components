@@ -89,7 +89,10 @@ resample_wrf_hourly_to_month <- function(ncdf_path = NULL,
     # Parse out Month, year, hour
     resampled_df_parse <- resampled_df %>%
       dplyr::mutate(year = substr(time,1,4),
-                    month = substr(time,6,7))
+                    month = substr(time,6,7),
+                    day = substr(time,9,10),
+                    hour = substr(time,12,13)) %>%
+      dplyr::filter(hour %in% c("00","23"))
 
     # Join to main table
     resampled_df_comb <-
@@ -115,7 +118,7 @@ resample_wrf_hourly_to_month <- function(ncdf_path = NULL,
     # Calculate min daily temperature if param T2 exists
     if(param_i == "T2"){
       resampled_monthly_df_i_grouped <- resampled_monthly_df_i %>%
-                           dplyr::group_by(lon,lat,param,year,month, unit) %>%
+                           dplyr::group_by(lon,lat,param,year,month,unit) %>%
                            dplyr::summarize(value = min(value,na.rm=T)) %>%
                            dplyr::mutate(param="T2min") %>%
                            dplyr::ungroup() %>%
@@ -133,16 +136,16 @@ resample_wrf_hourly_to_month <- function(ncdf_path = NULL,
         resampled_monthly_df_i_grouped <-  resampled_df_comb %>%
           dplyr::select(-time) %>%
           dplyr::filter(grepl("RAIN",param)) %>%
-          dplyr::group_by(lon,lat,unit,year,month) %>%
+          dplyr::group_by(lon,lat,unit,year,month,day,hour) %>%
           dplyr::summarize(value=sum(value,na.rm=T))%>%
           dplyr::ungroup() %>%
           dplyr::mutate(param="RAIN") %>%
-          dplyr::group_by(lon,lat,param,unit) %>%
-          dplyr::arrange(lon,lat,param,unit,year,month)%>%
-          dplyr::mutate(value_diff = value-lag(value),
-                        value_diff = dplyr::if_else(is.na(value_diff),value,value_diff))%>%
-          dplyr::select(-value) %>%
-          dplyr::rename(value=value_diff); resampled_monthly_df_i_grouped
+          tidyr::spread(key="hour",value="value")%>%
+          dplyr::mutate(value = `23`-`00`)%>%
+          dplyr::select(-`23`,-`00`)%>%
+          dplyr::group_by(lon,lat,unit,year,month) %>%
+          dplyr::summarize(value=sum(value,na.rm=T))%>%
+          dplyr::ungroup(); resampled_monthly_df_i_grouped
 
         counter_rain = counter_rain+1 # Only calculate once
       }
@@ -212,7 +215,7 @@ resample_wrf_hourly_to_month <- function(ncdf_path = NULL,
       dplyr::filter(param %in% c("Q2","T2","PSFC")) %>%
       dplyr::select(-unit) %>%
       tidyr::spread(key="param",value="value") %>%
-      dplyr::mutate(value = Q2 / ( (pq0 / PSFC) * exp(a2 * (T2 - a3) / (T2 - a4)) ),
+      dplyr::mutate(value = 100 * Q2 / ( (pq0 / PSFC) * exp(a2 * (T2 - a3) / (T2 - a4)) ),
                     unit = "percent",
                     param= "rh") %>%
       dplyr::select(-PSFC,-Q2,-T2) %>%
