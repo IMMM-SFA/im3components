@@ -143,7 +143,7 @@ resample_wrf_hourly_to_month <- function(ncdf_path = NULL,
           tidyr::spread(key="hour",value="value")%>%
           dplyr::mutate(value = `23`-`00`)%>%
           dplyr::select(-`23`,-`00`)%>%
-          dplyr::group_by(lon,lat,unit,year,month) %>%
+          dplyr::group_by(lon,lat,unit,year,param,month) %>%
           dplyr::summarize(value=sum(value,na.rm=T))%>%
           dplyr::ungroup(); resampled_monthly_df_i_grouped
 
