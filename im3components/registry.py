@@ -17,9 +17,9 @@ class Registry:
 
         """
 
-        asset_lwr = asset.lower()
+        asset_lwr = asset.casefold()
 
-        return [i.name for i in self.components if asset_lwr == i.parent or asset_lwr == i.child]
+        return [i.name for i in self.components if asset_lwr == i.parent.casefold() or asset_lwr == i.child.casefold()]
 
     def list_registry(self) -> list:
         """Return a list of all registered components."""
