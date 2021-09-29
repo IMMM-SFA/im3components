@@ -19,5 +19,6 @@ srun parallel --jobs 4 'python wrf_tell_counties.py \
     --precisions 2 5 2 2 2 2 \
     --shapefile-path ./Geolocation/tl_2020_us_county/tl_2020_us_county.shp \
     --weights-file-path ./grid_cell_to_county_weight.parquet \
-    --output-path ./County_Output_Files \
+    --output-directory ./County_Output_Files \
+    --output-filename-suffix _County_Mean_Meteorology \
 ' ::: ./Raw_Data/wrfout*

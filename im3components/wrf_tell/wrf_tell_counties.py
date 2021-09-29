@@ -1,11 +1,12 @@
 import argparse
 import datetime
+from os.path import isfile, join
+from typing import List
+
 import geopandas as gpd
 from joblib import Parallel, delayed
-from os.path import isfile, join
 import pandas as pd
 import salem
-from typing import List
 
 
 def compute_county_weighted_mean(
@@ -14,7 +15,18 @@ def compute_county_weighted_mean(
         precisions: List[int],
         normalized_weights_key: str = 'weight',
         county_fips_key: str = 'FIPS',
-):
+) -> pd.DataFrame:
+    """
+    Compute the weighted mean for specific columns of a dataframe, aggregated by county FIPS code.
+
+    :rtype: pandas.DataFrame
+    :param pandas.DataFrame df: DataFrame for which to compute weighted means
+    :param list(str) columns: columns within the DataFrame for which to compute weighted means
+    :param list(int) precisions: precisions to retain for the means, corresponding to the columns
+    :param str normalized_weights_key: column name within the DataFrame representing the weights
+    :param str county_fips_key: column name within the DataFrame representing the county FIPS code
+    :return: a new DataFrame containing the weighted means column aggregated to by county FIPS code
+    """
     return df[columns].multiply(
         df[normalized_weights_key],
         axis='index'
@@ -29,8 +41,21 @@ def compute_county_weighted_mean(
     })
 
 
-def write_output_file(df: pd.DataFrame, t: pd.Timestamp, output_path: str):
-    name = join(output_path, f'{t.strftime("%Y_%m_%d_%H_UTC")}_County_Mean_Meteorology.csv')
+def write_output_file(
+        df: pd.DataFrame,
+        t: pd.Timestamp,
+        output_directory: str,
+        filename_suffix: str,
+) -> None:
+    """
+    Write a dataframe to file, using a timestamp to generate a file name.
+
+    :param pandas.DataFrame df: DataFrame to write to file
+    :param pandas.Timestamp t: Timestamp that will be used to create the file name
+    :param str output_directory: path to a directory to which to write the output file
+    :param str filename_suffix: string to append to the timestamp for the output file name
+    """
+    name = join(output_directory, f'{t.strftime("%Y_%m_%d_%H_UTC")}{filename_suffix}.csv')
     df.to_csv(name, index=False)
 
 
@@ -40,7 +65,18 @@ def process_time_slice(
         precisions: List[int],
         mapping: pd.DataFrame,
         output_path: str,
-):
+        filename_suffix: str,
+) -> None:
+    """
+    Calculate the county weighted mean for a single time slice of WRF output data.
+
+    :param pandas.DataFrame df: DataFrame containing data for a single time slice
+    :param list(str) wrf_variables: list of columns in the DataFrame for which to calculate mean by county
+    :param list(int) precisions: list of precisions corresponding to the columns
+    :param pandas.DataFrame mapping: DataFrame containing the mapping of df index to county and weight
+    :param str output_path: path to which to write the output aggregation
+    :param str filename_suffix: string to append to the timestamp for the output file name
+    """
     write_output_file(
         compute_county_weighted_mean(
             mapping.merge(df, how='left', left_on='cell_index', right_index=True),
@@ -49,6 +85,7 @@ def process_time_slice(
         ),
         df.time.iloc[0],
         output_path,
+        filename_suffix,
     )
 
 
@@ -58,8 +95,9 @@ def wrf_to_tell_counties(
         precisions: List[int],
         county_shapefile: str = './Geolocation/tl_2020_us_county/tl_2020_us_county.shp',
         weight_and_mapping_file: str = './grid_cell_to_county_weight.parquet',
-        output_path: str = './County_Output_Files',
-        n_jobs: int = 1,
+        output_directory: str = './County_Output_Files',
+        output_filename_suffix: str = '_County_Mean_Meteorology',
+        n_jobs: int = -1,
 ) -> None:
     """
     Aggregate WRF output data to county level using area weighted average.
@@ -69,15 +107,15 @@ def wrf_to_tell_counties(
     :param list(int) precisions: list of precisions corresponding to the variables to aggregate
     :param str county_shapefile: path to a shapefile (.shp) with county geometries
     :param str weight_and_mapping_file: path to read or write a weights file which maps WRF grid cell to county weight
-    :param str output_path: path to which output should be written
-    :param n_jobs: number of time slices to process in parallel
+    :param str output_directory: path to which output should be written
+    :param str output_filename_suffix: string to append to the timestamp for the output file name
+    :param int n_jobs: number of time slices to process in parallel
     """
 
     begin_time = datetime.datetime.now()
 
     if not isfile(wrf_file):
-        print('No file to process, exiting...')
-        exit()
+        raise FileNotFoundError('No file to process, exiting...')
 
     wrf = salem.open_wrf_dataset(wrf_file)
 
@@ -98,7 +136,15 @@ def wrf_to_tell_counties(
         }).to_crs(wrf_crs)
 
         # find the intersection between counties and wrf cells
-        intersection = gpd.overlay(counties, wrf_df, how='intersection')
+        try:
+            intersection = gpd.overlay(counties, wrf_df, how='intersection')
+        except ValueError as e:
+            raise ValueError(f'''
+                The intersection of county geometry and WRF grid cells resulted in invalid geometry.
+                Please double check the geometry.
+                
+                {str(e)}
+            ''')
         # weight by the intersection area
         intersection['area'] = intersection.area
         intersection['weight'] = (
@@ -116,7 +162,8 @@ def wrf_to_tell_counties(
                 precisions,
             ),
             wrf_df.time.iloc[0],
-            output_path,
+            output_directory,
+            output_filename_suffix,
         )
         t_start = 1
 
@@ -131,7 +178,8 @@ def wrf_to_tell_counties(
             wrf_variables,
             precisions,
             mapping,
-            output_path,
+            output_directory,
+            output_filename_suffix,
         ) for i in range(wrf.time.shape[0])[t_start:]
     )
 
@@ -180,10 +228,16 @@ if __name__ == '__main__':
     )
     parser.add_argument(
         '-o',
-        '--output-path',
+        '--output-directory',
         type=str,
         help='path to which output should be written',
         required=True,
+    )
+    parser.add_argument(
+        '--output-filename-suffix',
+        type=str,
+        help='string to append to the timestamp for the output file name',
+        default='_County_Mean_Meteorology'
     )
     parser.add_argument(
         '-n',
@@ -199,6 +253,7 @@ if __name__ == '__main__':
         precisions=args.precisions,
         county_shapefile=args.shapefile_path,
         weight_and_mapping_file=args.weights_file_path,
-        output_path=args.output_path,
+        output_directory=args.output_directory,
+        output_filename_suffix=args.output_filename_suffix,
         n_jobs=args.number_of_tasks,
     )
