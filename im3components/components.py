@@ -1,6 +1,7 @@
 from dataclasses import dataclass, field
 
 from im3components.gcam_cerf_expansion_plan import gcam_cerf_expansion
+from im3components.wrf_tell.wrf_tell_counties import wrf_to_tell_counties
 
 
 @dataclass
@@ -17,12 +18,12 @@ class Component:
 def get_components():
     return [
 
-        Component(name='wrf_tell_tocounty',
+        Component(name='wrf_tell_counties',
                   parent='WRF',
                   child='TELL',
                   description='Convert gridded WRF data to mean county data.',
                   language='Python',
-                  code=gcam_cerf_expansion),
+                  code=wrf_to_tell_counties),
 
         Component(name='gcam_cerf_expansion',
                   parent='GCAM',

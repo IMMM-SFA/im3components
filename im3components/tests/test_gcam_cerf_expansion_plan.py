@@ -20,7 +20,9 @@ class TestGcamCerfExpansionPlan(unittest.TestCase):
         """Test for initial dummy value return."""
 
         # get result
-        result = im3c.gcam_cerf_expansion_plan()
+        registry = im3c.registry()
+        method = registry.get_function(registry.list_related('gcam')[0])
+        result = method(0, 0)
 
         # function should return 0
         self.assertEqual(0, result, msg=f"Result for `gcam_cerf_expansion_plan` returned {result} instead of 0")
