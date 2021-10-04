@@ -72,7 +72,9 @@ def population_to_tell_counties(raster_file: str,
                                 y_coordinate_field: str = 'y',
                                 drop_nan: bool = True,
                                 county_id_field: str = 'GEOID',
-                                set_county_id_name: str = 'FIPS') -> pd.DataFrame:
+                                set_county_id_name: str = 'FIPS',
+                                weights_file: str = None,
+                                yr: int = None) -> pd.DataFrame:
     """Sum gridded population data by its spatially corresponding counties using a weighted area approach.  Each grid
     cell population value gets adjusted using the fraction of its area that is contained within a county.
 
@@ -181,11 +183,16 @@ def population_to_tell_counties(raster_file: str,
         # ensure output directory exists
         if os.path.isdir(output_directory):
 
+            weights_file = os.path.join(output_directory, f'{state_name}_population_to_county_area_weights.csv')
+
+            if os.path.isfile(weights_file) is False:
+                gdf_intersect[['weight']].to_csv(os.path.join(output_directory, f'{state_name}_population_to_county_area_weights.csv'), index=False)
+
             # make state name and scenario lower case and hyphen separated with no periods
             state_name = validate_string(state_name)
             scenario = validate_string(scenario)
 
-            output_file = os.path.join(output_directory, f'{scenario}_county_population_sum_{state_name}.csv')
+            output_file = os.path.join(output_directory, f'{scenario}_{state_name}_{yr}_county_population_sum.csv')
 
             df_county_sum.to_csv(output_file, index=False)
 
