@@ -62,17 +62,17 @@ def build_polygon_from_centroid(x: float,
     return Polygon(bounds)
 
 
-def population_to_county_sum(raster_file: str,
-                             county_shapefile: str,
-                             state_name: str = None,
-                             scenario: str = None,
-                             output_directory: str = None,
-                             data_field_name: str = 'n_population',
-                             x_coordinate_field: str = 'x',
-                             y_coordinate_field: str = 'y',
-                             drop_nan: bool = True,
-                             county_id_field: str = 'GEOID',
-                             set_county_id_name: str = 'FIPS') -> pd.DataFrame:
+def population_to_tell_counties(raster_file: str,
+                                county_shapefile: str,
+                                state_name: str = None,
+                                scenario: str = None,
+                                output_directory: str = None,
+                                data_field_name: str = 'n_population',
+                                x_coordinate_field: str = 'x',
+                                y_coordinate_field: str = 'y',
+                                drop_nan: bool = True,
+                                county_id_field: str = 'GEOID',
+                                set_county_id_name: str = 'FIPS') -> pd.DataFrame:
     """Sum gridded population data by its spatially corresponding counties using a weighted area approach.  Each grid
     cell population value gets adjusted using the fraction of its area that is contained within a county.
 
