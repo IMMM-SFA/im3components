@@ -10,8 +10,6 @@ import glob
     
     Contains the following functions:
     - wrf_xanthos_to_npy
-    - utils_replace_nan_array
-    - xanthos_expand_replace_data
 
 """
 
@@ -76,50 +74,3 @@ def wrf_xanthos_to_npy(
             file_name = out_dir_path + '/' + os.path.basename(file_i.replace(".csv", ".npy"))
             np.save(file_name, table_i)
             print(f'Saved converted file as: {file_name}')
-            
-
-def utils_replace_nan_array(
-        nan_array,
-        replace_array):
-    """Replace values in nan_array by values from replace_array
-
-    :param nan_array:        .npy ndarray with nan values to be replace
-    :type nan_array:        ndarray
-
-    :param replace_array:        .npy ndarray with nan values to be replace
-    :type replace_array:        ndarray
-
-    USAGE:
-    import numpy as np
-    import im3components
-    nan_array = np.zeros((2,2))
-    nan_array[1,1] = float("nan")
-    replace_array = np.ones((2,2))
-    new_array = im3components.utils_replace_nan_array(nan_array,replace_array)
-
-    """
-
-    print("Starting utils_replace_nan_array...")
-
-    # Check that both nan_array and replace_array are ndarrays
-    if not isinstance(nan_array, (list, tuple, np.ndarray)):
-        raise ValueError(f'nan_array must be an array,list or tuple.')
-    if not isinstance(replace_array, (list, tuple, np.ndarray)):
-        raise ValueError(f'replace_array must be an array,list or tuple.')
-
-    # Check that shape is the same
-    if not nan_array.shape == replace_array.shape:
-        raise ValueError(f'nan_array and replace_array must have the same size.')
-
-    # Initialize return_array
-    return_array = np.copy(nan_array)
-
-    # Replace nan values
-    for i in range(0,nan_array.shape[0]):
-        for j in range(0,nan_array.shape[1]):
-            if np.isnan(return_array[i,j]):
-                return_array[i,j] = replace_array[i,j]
-
-    print("utils_replace_nan_array complete.")
-
-    return(return_array)
