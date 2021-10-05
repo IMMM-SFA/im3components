@@ -12,6 +12,9 @@ class TestPopTellCounties(unittest.TestCase):
     COMPONENT_NAME = 'population_tell_counties'
     COUNTY_SHAPEFILE = pkg_resources.resource_filename('im3components', 'tests/wrf_tell_data/test_counties.shp')
     RASTER_FILE = pkg_resources.resource_filename('im3components', 'tests/data/test_population.tif')
+    WEIGHTS_FILE_VALID = pkg_resources.resource_filename('im3components', 'tests/data/test_population_weights_valid.csv')
+    WEIGHTS_FILE_INVALID_A = pkg_resources.resource_filename('im3components', 'tests/data/test_population_weights_invalid_a.csv')
+    WEIGHTS_FILE_INVALID_B = pkg_resources.resource_filename('im3components', 'tests/data/test_population_weights_invalid_b.csv')
 
     EXPECTED_OUTPUT = pd.DataFrame({'FIPS': ['01001'], 'n_population': 19637.692808})
 
@@ -27,6 +30,7 @@ class TestPopTellCounties(unittest.TestCase):
         condition_d = 777
         condition_e = '2020.0'
         condition_f = 12777
+        condition_g = None
 
         self.assertEqual(pop.validate_year(condition_a), 2020)
         self.assertEqual(pop.validate_year(condition_b), 2020)
@@ -41,17 +45,40 @@ class TestPopTellCounties(unittest.TestCase):
         with self.assertRaises(AssertionError):
             pop.validate_year(condition_f)
 
+        with self.assertRaises(AssertionError):
+            pop.validate_year(condition_g)
+
     def test_validate_string(self):
         """Ensure string responds as expected under different conditions."""
 
         condition_a = 'SSP3'
         condition_b = 'District of Columbia'
+        condition_c = None
 
         a = pop.validate_string(condition_a)
         b = pop.validate_string(condition_b)
 
         self.assertEqual(a, 'ssp3')
         self.assertEqual(b, 'district-of-columbia')
+
+        with self.assertRaises(AssertionError):
+            pop.validate_string(condition_c)
+
+    def test_validate_weights_file(self):
+        """Ensure the weights file contains what is expected."""
+
+        # valid case
+        expected_valid_df = pd.DataFrame({'cell_index': [1], 'FIPS': ['01'], 'weight': [0.01]})
+        valid_df = pop.validate_weights_file(TestPopTellCounties.WEIGHTS_FILE_VALID)
+        pd.testing.assert_frame_equal(expected_valid_df, valid_df)
+
+        # invalid with incorrect column name
+        with self.assertRaises(AssertionError):
+            pop.validate_weights_file(TestPopTellCounties.WEIGHTS_FILE_INVALID_A)
+
+        # invalid with only header and no data
+        with self.assertRaises(AssertionError):
+            pop.validate_weights_file(TestPopTellCounties.WEIGHTS_FILE_INVALID_B)
 
     def test_build_polygon_from_centroid(self):
         """Ensure polygon is built as expected given a centroid and expected resolution."""
