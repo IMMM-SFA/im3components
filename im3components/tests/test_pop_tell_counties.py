@@ -3,13 +3,15 @@ import unittest
 
 import pandas as pd
 
-import im3components.wrf_tell.pop_tell_counties as pop
+import im3components as cmp
+import im3components.pop_tell_counties as pop
 
 
 class TestPopTellCounties(unittest.TestCase):
 
+    COMPONENT_NAME = 'population_tell_counties'
     COUNTY_SHAPEFILE = pkg_resources.resource_filename('im3components', 'tests/wrf_tell_data/test_counties.shp')
-    RASTER_FILE = pkg_resources.resource_filename('im3components', 'tests/wrf_tell_data/test_population.tif')
+    RASTER_FILE = pkg_resources.resource_filename('im3components', 'tests/data/test_population.tif')
 
     def test_validate_string(self):
         """Ensure string responds as expected under different conditions."""
@@ -50,6 +52,33 @@ class TestPopTellCounties(unittest.TestCase):
 
         df = pop.population_to_tell_counties(raster_file=TestPopTellCounties.RASTER_FILE,
                                              county_shapefile=TestPopTellCounties.COUNTY_SHAPEFILE)
+
+        pd.testing.assert_frame_equal(expected_df, df)
+
+    def test_registry(self):
+        """Test component registry functionality."""
+
+        reg = cmp.registry()
+
+        # get a list of all components
+        registry_list = reg.list_registry()
+
+        # get a list of population components
+        registry_asset = reg.list_related(asset='population')
+
+        # ensure this component has been registered
+        self.assertTrue(TestPopTellCounties.COMPONENT_NAME in registry_list)
+
+        # ensure component is findable by asset name
+        self.assertTrue(TestPopTellCounties.COMPONENT_NAME in registry_asset)
+
+        # check asset function
+        my_asset_function = reg.get_function(TestPopTellCounties.COMPONENT_NAME)
+
+        expected_df = pd.DataFrame({'FIPS': ['01001'], 'n_population': 19637.692808})
+
+        df = my_asset_function(raster_file=TestPopTellCounties.RASTER_FILE,
+                               county_shapefile=TestPopTellCounties.COUNTY_SHAPEFILE)
 
         pd.testing.assert_frame_equal(expected_df, df)
 
