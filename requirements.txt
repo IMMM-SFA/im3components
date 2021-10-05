@@ -13,3 +13,4 @@ scipy>=1.5.4
 Shapely>=1.7.1
 xarray>=0.16.2
 swifter>=1.0.9
+rasterio>=1.2.9
