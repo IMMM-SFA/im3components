@@ -678,6 +678,7 @@ xanthos_gcam_create_xml <- function(xanthos_runoff_csv = NULL,
 #' @param base_year_month_start Default = NULL
 #' @param target_npy Default = NULL. Target .npy file to expand to.
 #' @param target_year_month_start Default = NULL
+#' @param end_year Default = NUll. Last year to process data till. If NULL will use last complete year.
 #' @param out_dir Default = NULL. Path to folder to save outputs in.
 #' @importFrom magrittr %>%
 #' @export
@@ -686,6 +687,7 @@ xanthos_npy_expand <- function(base_npy = NULL,
                                base_year_month_start=NULL,
                                target_npy = NULL,
                                target_year_month_start = NULL,
+                               end_year = NULL,
                                out_dir = NULL) {
 
 
@@ -721,6 +723,15 @@ xanthos_npy_expand <- function(base_npy = NULL,
   target_names <- sort(outer(as.character(c(target_start_year:target_end_year)),
                            c("_01","_02","_03","_04","_05","_06","_07","_08","_09","_10","_11","_12"),
                            FUN="paste0"))[1:ncol(target_df)]; target_names
+  target_end_year_month_orig = target_names[length(target_names)]; target_end_year_month_orig
+
+  # Remove last year if not complete with all months
+  if(!any(grepl(paste0(target_end_year,"_12"),target_names))){
+    target_names <- target_names[!grepl(target_end_year,target_names)]
+    target_df <- target_df[,1:length(target_names)]
+    print("Removing final year because it does not have all 12 months.")
+  }
+
 
   # Assign names to base_npy
   names(base_df)  <- base_names
@@ -768,6 +779,11 @@ xanthos_npy_expand <- function(base_npy = NULL,
     }
 
     fname <- paste0(out_dirx,"/",gsub(".npy","_us_global.npy",basename(target_npy))); fname
+    if(!grepl(target_end_year,target_names)){
+      if(grepl(target_end_year,fname)){
+        fname <- gsub(target_end_year_month_orig,paste0((target_end_year-1),"_12"),fname)
+      }
+    }
     np$save(fname, as.matrix(out_df))
     print(paste0("File saved as ",fname))
   }
