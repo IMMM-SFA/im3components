@@ -9,6 +9,35 @@ import geopandas as gpd
 from shapely.geometry import Polygon
 
 
+def validate_year(x: int) -> int:
+    """Return a year integer in YYYY format if the input format is correct.
+
+    :param x:                           Target year in YYYY format.
+    :type x:                            int
+
+    :return:                            Integer year in YYYY format.
+
+    """
+
+    # convert string to int if possible
+    try:
+        x = int(x)
+    except ValueError:
+        raise ValueError(f"Value for 'target_yr' must be a 4-digit integer in YYYY format instead of '{x}'")
+
+    # check year span
+    thousands_place = x // 1000
+
+    message = f"Value for 'target_yr' must be greater than year 1000 and less than year 10000. Passed value: '{x}'"
+
+    if thousands_place == 0:
+        raise AssertionError(message)
+    elif thousands_place >= 10:
+        raise AssertionError(message)
+
+    return x
+
+
 def validate_string(x: str = None) -> str:
     """Return a string that is all lower case and hyphen separated with no periods.  Ensure value is not None.
 
@@ -116,6 +145,16 @@ def population_to_tell_counties(raster_file: str,
     :param set_county_id_name:          Field name to change the 'county_id_field' name to.
     :type set_county_id_name:           str
 
+    :param weights_file:                Full path with file name and extension to an inputs file containing the
+                                        grid cell id (cell_index), the counties unique field name
+                                        (what 'set_county_id_name' was set to), the intersected geometry (geometry),
+                                        and the weight ('weight).  If given, this file will be used instead of running
+                                        a new intersection.
+    :type weights_file:                 str
+
+    :param yr:                          The year to process in YYYY format.
+    :type yr:                           int
+
     :return:                            A Pandas DataFrame of population data aggregated by the 'set_county_id_name'
                                         having fields and types of: {county_id_field: str, data_field_name: float}
 
@@ -153,6 +192,9 @@ def population_to_tell_counties(raster_file: str,
     # convert to GeoDataFrame and set the coordinate system to that of the input raster
     gdf_raster = gpd.GeoDataFrame(df_raster, geometry='geometry').set_crs(da_raster.crs)
 
+    # assign grid cell index
+    gdf_raster['cell_index'] = gdf_raster.index.values
+
     # read in county polygon data
     counties = gpd.read_file(county_shapefile)
 
@@ -183,14 +225,15 @@ def population_to_tell_counties(raster_file: str,
         # ensure output directory exists
         if os.path.isdir(output_directory):
 
-            weights_file = os.path.join(output_directory, f'{state_name}_population_to_county_area_weights.csv')
-
-            if os.path.isfile(weights_file) is False:
-                gdf_intersect[['weight']].to_csv(os.path.join(output_directory, f'{state_name}_population_to_county_area_weights.csv'), index=False)
+            # write a weights file if one was not passed in
+            if weights_file is not None:
+                weights_file = os.path.join(output_directory, f'{state_name}_population_to_county_area_weights.csv')
+                gdf_intersect[['cell_index', set_county_id_name, 'weight']].to_csv(weights_file, index=False)
 
             # make state name and scenario lower case and hyphen separated with no periods
             state_name = validate_string(state_name)
             scenario = validate_string(scenario)
+            yr = validate_year(yr)
 
             output_file = os.path.join(output_directory, f'{scenario}_{state_name}_{yr}_county_population_sum.csv')
 

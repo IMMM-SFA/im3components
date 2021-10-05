@@ -13,6 +13,34 @@ class TestPopTellCounties(unittest.TestCase):
     COUNTY_SHAPEFILE = pkg_resources.resource_filename('im3components', 'tests/wrf_tell_data/test_counties.shp')
     RASTER_FILE = pkg_resources.resource_filename('im3components', 'tests/data/test_population.tif')
 
+    EXPECTED_OUTPUT = pd.DataFrame({'FIPS': ['01001'], 'n_population': 19637.692808})
+
+    def test_validate_year(self):
+        """Ensure year responds as expected under different conditions."""
+
+        # pass conditions
+        condition_a = 2020
+        condition_b = '2020'
+        condition_c = 2020.0
+
+        # fail conditions
+        condition_d = 777
+        condition_e = '2020.0'
+        condition_f = 12777
+
+        self.assertEqual(pop.validate_year(condition_a), 2020)
+        self.assertEqual(pop.validate_year(condition_b), 2020)
+        self.assertEqual(pop.validate_year(condition_c), 2020)
+
+        with self.assertRaises(AssertionError):
+            pop.validate_year(condition_d)
+
+        with self.assertRaises(ValueError):
+            pop.validate_year(condition_e)
+
+        with self.assertRaises(AssertionError):
+            pop.validate_year(condition_f)
+
     def test_validate_string(self):
         """Ensure string responds as expected under different conditions."""
 
@@ -48,12 +76,10 @@ class TestPopTellCounties(unittest.TestCase):
     def test_population_to_tell_counties(self):
         """Ensure the function outputs as expected."""
 
-        expected_df = pd.DataFrame({'FIPS': ['01001'], 'n_population': 19637.692808})
-
         df = pop.population_to_tell_counties(raster_file=TestPopTellCounties.RASTER_FILE,
                                              county_shapefile=TestPopTellCounties.COUNTY_SHAPEFILE)
 
-        pd.testing.assert_frame_equal(expected_df, df)
+        pd.testing.assert_frame_equal(TestPopTellCounties.EXPECTED_OUTPUT, df)
 
     def test_registry(self):
         """Test component registry functionality."""
@@ -75,12 +101,10 @@ class TestPopTellCounties(unittest.TestCase):
         # check asset function
         my_asset_function = reg.get_function(TestPopTellCounties.COMPONENT_NAME)
 
-        expected_df = pd.DataFrame({'FIPS': ['01001'], 'n_population': 19637.692808})
-
         df = my_asset_function(raster_file=TestPopTellCounties.RASTER_FILE,
                                county_shapefile=TestPopTellCounties.COUNTY_SHAPEFILE)
 
-        pd.testing.assert_frame_equal(expected_df, df)
+        pd.testing.assert_frame_equal(TestPopTellCounties.EXPECTED_OUTPUT, df)
 
 
 if __name__ == '__main__':
