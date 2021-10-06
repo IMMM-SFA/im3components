@@ -16,7 +16,7 @@ class TestPopTellCounties(unittest.TestCase):
     WEIGHTS_FILE_INVALID_A = pkg_resources.resource_filename('im3components', 'tests/data/test_population_weights_invalid_a.csv')
     WEIGHTS_FILE_INVALID_B = pkg_resources.resource_filename('im3components', 'tests/data/test_population_weights_invalid_b.csv')
 
-    EXPECTED_OUTPUT = pd.DataFrame({'FIPS': ['01001'], '2020': 21351.31223})
+    EXPECTED_OUTPUT = pd.DataFrame({'FIPS': ['01001'], '2020': 34036.41860103201})
 
     def test_validate_year(self):
         """Ensure year responds as expected under different conditions."""
@@ -127,7 +127,6 @@ class TestPopTellCounties(unittest.TestCase):
         df = pop.population_to_tell_counties(raster_list=[TestPopTellCounties.RASTER_FILE],
                                              county_shapefile=TestPopTellCounties.COUNTY_SHAPEFILE,
                                              year_list=[2020],
-                                             active_test=True,
                                              state_name='alabama')
 
         pd.testing.assert_frame_equal(TestPopTellCounties.EXPECTED_OUTPUT, df)
@@ -155,7 +154,6 @@ class TestPopTellCounties(unittest.TestCase):
         df = my_asset_function(raster_list=[TestPopTellCounties.RASTER_FILE],
                                county_shapefile=TestPopTellCounties.COUNTY_SHAPEFILE,
                                year_list=[2020],
-                               active_test=True,
                                state_name='alabama')
 
         pd.testing.assert_frame_equal(TestPopTellCounties.EXPECTED_OUTPUT, df)
