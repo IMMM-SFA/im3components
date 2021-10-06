@@ -16,7 +16,7 @@ class TestPopTellCounties(unittest.TestCase):
     WEIGHTS_FILE_INVALID_A = pkg_resources.resource_filename('im3components', 'tests/data/test_population_weights_invalid_a.csv')
     WEIGHTS_FILE_INVALID_B = pkg_resources.resource_filename('im3components', 'tests/data/test_population_weights_invalid_b.csv')
 
-    EXPECTED_OUTPUT = pd.DataFrame({'FIPS': ['01001'], '2020': 19637.692808})
+    EXPECTED_OUTPUT = pd.DataFrame({'FIPS': ['01001'], '2020': 21351.31223})
 
     def test_validate_year(self):
         """Ensure year responds as expected under different conditions."""
@@ -80,6 +80,27 @@ class TestPopTellCounties(unittest.TestCase):
         with self.assertRaises(AssertionError):
             pop.validate_weights_file(TestPopTellCounties.WEIGHTS_FILE_INVALID_B)
 
+    def test_validate_list_order(self):
+        """Ensure that the population raster list and the weights file list are both ordered the same by state."""
+
+        raster_list = ['/some_dir/south_carolina_1km_ssp3_total_2020.tif',
+                       '/some_dir/virginia_1km_ssp3_total_2020.tif']
+
+        weights_file_list = ['/some_dir/south_carolina_population_to_county_area_weights.csv',
+                             '/some_dir/virginia_population_to_county_area_weights.csv']
+
+        invalid_weights_file_list = [weights_file_list[1], weights_file_list[0]]
+
+        # test valid case
+        try:
+            pop.validate_list_order(raster_list=raster_list, weights_file_list=weights_file_list)
+        except AssertionError:
+            raise AssertionError("'test_validate_list_order': valid case failure.")
+
+        # test invalid case
+        with self.assertRaises(AssertionError):
+            pop.validate_list_order(raster_list=raster_list, weights_file_list=invalid_weights_file_list)
+
     def test_build_polygon_from_centroid(self):
         """Ensure polygon is built as expected given a centroid and expected resolution."""
 
@@ -105,7 +126,9 @@ class TestPopTellCounties(unittest.TestCase):
 
         df = pop.population_to_tell_counties(raster_list=[TestPopTellCounties.RASTER_FILE],
                                              county_shapefile=TestPopTellCounties.COUNTY_SHAPEFILE,
-                                             year_list=[2020])
+                                             year_list=[2020],
+                                             active_test=True,
+                                             state_name='alabama')
 
         pd.testing.assert_frame_equal(TestPopTellCounties.EXPECTED_OUTPUT, df)
 
@@ -131,7 +154,9 @@ class TestPopTellCounties(unittest.TestCase):
 
         df = my_asset_function(raster_list=[TestPopTellCounties.RASTER_FILE],
                                county_shapefile=TestPopTellCounties.COUNTY_SHAPEFILE,
-                               year_list=[2020])
+                               year_list=[2020],
+                               active_test=True,
+                               state_name='alabama')
 
         pd.testing.assert_frame_equal(TestPopTellCounties.EXPECTED_OUTPUT, df)
 

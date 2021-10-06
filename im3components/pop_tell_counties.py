@@ -1,4 +1,5 @@
 import os
+import pkg_resources
 from typing import List
 
 import swifter
@@ -8,6 +9,8 @@ import xarray as xr
 import geopandas as gpd
 from joblib import Parallel, delayed
 from shapely.geometry import Polygon
+
+from im3components.utils import read_yaml
 
 
 def validate_year(x: int) -> int:
@@ -96,6 +99,32 @@ def validate_weights_file(weights_file: str = None, set_county_id_name: str = 'F
         raise FileNotFoundError(f"The 'weights_file' passed does not exist:  '{weights_file}'")
 
 
+def validate_list_order(raster_list: List[str], weights_file_list: List[str]):
+    """Ensure that the population raster list and the weights file list are both ordered the same by state.
+
+    :param raster_list:                 List of full path with file name and extension to the input raster files.
+    :type raster_list:                  List[str]
+
+    :param weights_file_list:           A list of full path with file name and extension to weights files containing the
+                                        grid cell id (cell_index), the counties unique field name
+                                        (what 'set_county_id_name' was set to), and the weight ('weight).  If given,
+                                        this file will be used instead of running a new intersection.
+                                        The order of this list must correspond to the order of the raster list.
+    :type weights_file_list:            List[str]
+
+    """
+
+    message = """The order of states in the 'raster_list' much match the order in 'weights_file_list'.  
+                     Mismatch identified for:  {} != {}"""
+
+    for i in range(len(raster_list)):
+        raster_state_name = os.path.basename(raster_list[i]).split('_')[:-4]
+        weights_state_name = os.path.basename(weights_file_list[i]).split('_')[:-5]
+
+        assert raster_state_name == weights_state_name, message.format('_'.join(raster_state_name),
+                                                                       '_'.join(weights_state_name))
+
+
 def build_polygon_from_centroid(x: float,
                                 y: float,
                                 x_resolution: float,
@@ -137,6 +166,7 @@ def get_county_data(template_raster_file: str = None,
                     county_shapefile: str = None,
                     county_geodataframe: gpd.GeoDataFrame = None,
                     county_id_field: str = 'GEOID',
+                    state_id_field: str = 'STATEFP',
                     set_county_id_name: str = 'FIPS') -> gpd.GeoDataFrame:
     """Import and process county data.
 
@@ -154,6 +184,9 @@ def get_county_data(template_raster_file: str = None,
     :param county_id_field:                     Field name of the ID field present in the counties shapefile.
                                                 This field will get renamed to the value of 'set_county_id_name'.
     :type county_id_field:                      str
+
+    :param state_id_field:                      Field name of the state ID field present in the counties shapefile.
+    :type state_id_field:                       str
 
     :param set_county_id_name:                  Field name to change the 'county_id_field' name to.
     :type set_county_id_name:                   str
@@ -175,12 +208,18 @@ def get_county_data(template_raster_file: str = None,
 
         # ensure field exists
         if county_id_field in gdf_counties.columns:
-            gdf_counties = gdf_counties[[county_id_field, 'geometry']].rename(
+            gdf_counties = gdf_counties[[state_id_field, county_id_field, 'geometry']].rename(
                 columns={county_id_field: set_county_id_name}
             ).to_crs(da_raster_crs)
 
         else:
             raise KeyError(f"There is not a field named '{county_id_field}' in the input county data.")
+
+    # add state_name to county if it does not exist
+    if 'state_name' not in gdf_counties.columns:
+        county_to_state_file = pkg_resources.resource_filename('im3components', 'data/county_to_state_key.yml')
+        county_to_state_dict = read_yaml(county_to_state_file)
+        gdf_counties['state_name'] = gdf_counties[state_id_field].map(county_to_state_dict)
 
     return gdf_counties
 
@@ -273,10 +312,12 @@ def process_single_year(raster_file: str,
                         y_coordinate_field: str = 'y',
                         drop_nan: bool = True,
                         county_id_field: str = 'GEOID',
+                        state_id_field: str = 'STATEFP',
                         set_county_id_name: str = 'FIPS',
                         weights_file: str = None,
                         target_year: int = None,
-                        parallel_polygons: bool = False) -> pd.DataFrame:
+                        parallel_polygons: bool = False,
+                        active_test: bool = False) -> pd.DataFrame:
     """Sum gridded population data by its spatially corresponding counties using a weighted area approach.  Each grid
     cell population value gets adjusted using the fraction of its area that is contained within a county.
 
@@ -318,6 +359,9 @@ def process_single_year(raster_file: str,
                                         get renamed to the value of 'set_county_id_name'.
     :type county_id_field:              str
 
+    :param state_id_field:              Field name of the state ID field present in the counties shapefile.
+    :type state_id_field:               str
+
     :param set_county_id_name:          Field name to change the 'county_id_field' name to.
     :type set_county_id_name:           str
 
@@ -333,6 +377,9 @@ def process_single_year(raster_file: str,
     :param parallel_polygons:           Choice to parallelize the creation of each polygon from raster centroids.  Set
                                         to False if wrapping this function in another parallel method.
     :type parallel_polygons:            bool
+
+    :param active_test:                 Set to True when running tests to enable use of test data.
+    :type active_test:                  bool
 
     :return:                            A Pandas DataFrame of population data aggregated by the 'set_county_id_name'
                                         having fields and types of: {county_id_field: str, data_field_name: float}
@@ -365,14 +412,51 @@ def process_single_year(raster_file: str,
                                        county_shapefile=county_shapefile,
                                        county_geodataframe=county_geodataframe,
                                        county_id_field=county_id_field,
+                                       state_id_field=state_id_field,
                                        set_county_id_name=set_county_id_name)
+
+        # only keep counties associated with the target state
+        gdf_counties = gdf_counties.loc[gdf_counties['state_name'] == state_name].copy()
 
         # intersect the counties data and the raster polygonized data
         gdf_intersect = gpd.overlay(gdf_counties, gdf_raster, how='intersection')
 
+        # calculate the number of counties that each grid cell is a part of
+        gdf_intersect['cell_count'] = gdf_intersect['cell_index'].map(
+            gdf_intersect['cell_index'].value_counts().to_dict()
+        )
+
         # calculate the weighted area
         gdf_intersect['area'] = gdf_intersect.area
+
+        # Where a fraction of the cell only exists in one county and the fraction of that grid cell
+        #   that is in the county is less than the grid cell total area, give the county the whole cell value.
+        #   This occurs when a grid cell is on the border of a county.
+        gdf_intersect['area'] = np.where((gdf_intersect['cell_count'] == 1) &
+                                         (gdf_intersect['area'] < grid_cell_area),
+                                         grid_cell_area,
+                                         gdf_intersect['area'])
+
+        # construct a dictionary of cell_index to total area per grid cell considering all counties
+        cell_to_area_dict = gdf_intersect.groupby('cell_index')['area'].sum().to_dict()
+
+        # Where a fraction of a grid cell is split between one or more counties and the area balance is less
+        #   than the total grid cell area, split the out of boundary area for the grid cell between the counties.
+        #   This occurs when county boundaries do not encompass the full grid cell.
+        gdf_intersect['area'] = gdf_intersect['area'] + (
+                (grid_cell_area - gdf_intersect['cell_index'].map(cell_to_area_dict)) / gdf_intersect['cell_count']
+        )
+
+        # calculate the weighted area per grid cell county intersection
         gdf_intersect['weight'] = gdf_intersect['area'] / grid_cell_area
+
+        # ensure that all raster grid cells are accounted for by a county
+        if active_test is False:
+            n_cells_expected = gdf_raster.shape[0]
+            n_cells_accounted_for = gdf_intersect['cell_index'].unique().shape[0]
+            n_cells_balance = n_cells_expected - n_cells_accounted_for
+            message = f"There were {n_cells_balance} grid cells not intersected by a county.  Please inspect county data set."
+            assert n_cells_expected == n_cells_accounted_for, message
 
     # update original value with weighted value
     gdf_intersect[data_field_name] = gdf_intersect[data_field_name] * gdf_intersect['weight']
@@ -409,18 +493,19 @@ def process_single_year(raster_file: str,
 
 
 def population_to_tell_counties(raster_list: List[str],
-                                  county_shapefile: str,
-                                  state_name: str = None,
-                                  scenario: str = None,
-                                  output_directory: str = None,
-                                  x_coordinate_field: str = 'x',
-                                  y_coordinate_field: str = 'y',
-                                  drop_nan: bool = True,
-                                  county_id_field: str = 'GEOID',
-                                  set_county_id_name: str = 'FIPS',
-                                  weights_file: str = None,
-                                  year_list: List[int] = None,
-                                  n_jobs=-1) -> pd.DataFrame:
+                                county_shapefile: str,
+                                state_name: str = None,
+                                scenario: str = None,
+                                output_directory: str = None,
+                                x_coordinate_field: str = 'x',
+                                y_coordinate_field: str = 'y',
+                                drop_nan: bool = True,
+                                county_id_field: str = 'GEOID',
+                                set_county_id_name: str = 'FIPS',
+                                weights_file: str = None,
+                                year_list: List[int] = None,
+                                n_jobs: int = -1,
+                                active_test: bool = False) -> pd.DataFrame:
     """Sum gridded population data by its spatially corresponding counties using a weighted area approach.  Each grid
     cell population value gets adjusted using the fraction of its area that is contained within a county.  This
     processes all years for a given state in parallel.
@@ -463,7 +548,7 @@ def population_to_tell_counties(raster_list: List[str],
     :param set_county_id_name:          Field name to change the 'county_id_field' name to.
     :type set_county_id_name:           str
 
-    :param weights_file:                Full path with file name and extension to an inputs file containing the
+    :param weights_file:                Full path with file name and extension to weights files containing the
                                         grid cell id (cell_index), the counties unique field name
                                         (what 'set_county_id_name' was set to), and the weight ('weight).  If given,
                                         this file will be used instead of running a new intersection.
@@ -471,6 +556,21 @@ def population_to_tell_counties(raster_list: List[str],
 
     :param year_list:                   List of years to process in YYYY format corresonding to the input raster list.
     :type year_list:                    List[int]
+
+    :param n_jobs:                      The maximum number of concurrently running jobs, such as the number of Python
+                                        worker processes when backend=”multiprocessing” or the size of the thread-pool
+                                        when backend=”threading”. If -1 all CPUs are used. If 1 is given, no parallel
+                                        computing code is used at all, which is useful for debugging.
+                                        For n_jobs below -1, (n_cpus + 1 + n_jobs) are used.
+                                        Thus for n_jobs = -2, all CPUs but one are used. None is a marker for ‘unset’
+                                        that will be interpreted as n_jobs=1 (sequential execution) unless the call is
+                                        performed under a parallel_backend context manager that sets another value
+                                        for n_jobs.  SOURCE:
+                                        https://joblib.readthedocs.io/en/latest/generated/joblib.Parallel.html
+    :type n_jobs:                       int
+
+    :param active_test:                 Set to True when running tests to enable use of test data.
+    :type active_test:                  bool
 
     :return:                            A Pandas DataFrame of population data aggregated by the 'set_county_id_name'
                                         having fields and types of: {county_id_field: str, year_0...n: float}
@@ -483,6 +583,8 @@ def population_to_tell_counties(raster_list: List[str],
                                    county_id_field=county_id_field,
                                    set_county_id_name=set_county_id_name)
 
+
+
     # run all years in parallel
     results = Parallel(n_jobs=n_jobs)(
         delayed(process_single_year)(
@@ -492,9 +594,11 @@ def population_to_tell_counties(raster_list: List[str],
             x_coordinate_field=x_coordinate_field,
             y_coordinate_field=y_coordinate_field,
             drop_nan=drop_nan,
+            state_name=state_name,
             county_id_field=county_id_field,
             set_county_id_name=set_county_id_name,
-            weights_file=weights_file
+            weights_file=weights_file,
+            active_test=active_test
         ) for idx, i in enumerate(raster_list)
     )
 

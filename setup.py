@@ -22,5 +22,6 @@ setup(
     description='IM3 components to maintain reproducible interoperability',
     python_requires='>=3.7.*',
     long_description=readme(),
-    install_requires=get_requirements()
+    install_requires=get_requirements(),
+    include_package_data=True
 )
