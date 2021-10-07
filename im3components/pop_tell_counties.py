@@ -535,7 +535,8 @@ def process_single_year(raster_file: str,
         # apply population balance to all counties
         df_county_sum[data_field_name] += pop_per_county_balance
 
-        print(f"Population balance of {population_balance} due to rounding was spread evenly across all counties.")
+        print(f"""Population balance of {population_balance} for {state_name} and year {data_field_name} due to  
+                    rounding was spread evenly across all counties.""")
 
     # write output file if desired
     if output_directory is not None:
