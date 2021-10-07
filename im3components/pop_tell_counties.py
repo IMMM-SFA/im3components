@@ -522,6 +522,21 @@ def process_single_year(raster_file: str,
                                            data_field_name=data_field_name,
                                            set_county_id_name=set_county_id_name)
 
+    # distribute the population allocation that occurs from weighting the area to balance with what was expected
+    expected_population = gdf_raster[data_field_name].sum()
+    aggregated_population = df_county_sum[data_field_name].sum()
+    population_balance = expected_population - aggregated_population
+
+    if abs(population_balance) > 0:
+
+        # spread balance between all counties
+        pop_per_county_balance = population_balance / df_county_sum.shape[0]
+
+        # apply population balance to all counties
+        df_county_sum[data_field_name] += pop_per_county_balance
+
+        print(f"Population balance of {population_balance} due to rounding was spread evenly across all counties.")
+
     # write output file if desired
     if output_directory is not None:
 
