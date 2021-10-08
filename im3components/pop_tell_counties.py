@@ -171,8 +171,7 @@ def validate_missing_cells(gdf_raster: gpd.GeoDataFrame,
             gdf_counties['dist'] = gdf_counties.geometry.distance(cell_geom)
 
             # get id of nearest county to cell
-            county_id = gdf_counties.loc[gdf_counties['dist'] == gdf_counties['dist'].min()][set_county_id_name].values[
-                0]
+            county_id = gdf_counties.loc[gdf_counties['dist'] == gdf_counties['dist'].min()][set_county_id_name].values[0]
 
             # add value of cell to county sum
             population_value = gdf_raster.loc[gdf_raster.cell_index == i][data_field_name].values[0]
@@ -226,7 +225,8 @@ def get_county_data(template_raster_file: str = None,
                     county_geodataframe: gpd.GeoDataFrame = None,
                     county_id_field: str = 'GEOID',
                     state_id_field: str = 'STATEFP',
-                    set_county_id_name: str = 'FIPS') -> gpd.GeoDataFrame:
+                    set_county_id_name: str = 'FIPS',
+                    state_name: str = None) -> gpd.GeoDataFrame:
     """Import and process county data.
 
     :param template_raster_file:                Full path with file name and extension to an input raster file. If
@@ -249,6 +249,9 @@ def get_county_data(template_raster_file: str = None,
 
     :param set_county_id_name:                  Field name to change the 'county_id_field' name to.
     :type set_county_id_name:                   str
+
+    :param state_name:                          Name of state to write into output file name.
+    :type state_name:                           str
 
     :return:                                    GeoDataFrame of county polygons
 
@@ -280,13 +283,15 @@ def get_county_data(template_raster_file: str = None,
         county_to_state_dict = read_yaml(county_to_state_file)
         gdf_counties['state_name'] = gdf_counties[state_id_field].map(county_to_state_dict)
 
+    # only keep counties associated with the target state
+    gdf_counties = gdf_counties.loc[gdf_counties['state_name'] == state_name].copy()
+
     return gdf_counties
 
 
 def get_raster_data(raster_file: str = None,
                     data_field_name: str = None,
                     drop_nan: bool = True,
-                    parallel_polygons: bool = False,
                     x_coordinate_field: str = 'x',
                     y_coordinate_field: str = 'y') -> gpd.GeoDataFrame:
     """Import and process population raster data.
@@ -306,10 +311,6 @@ def get_raster_data(raster_file: str = None,
 
     :param y_coordinate_field:          Field name of the y (latitude) coordinate value.
     :type y_coordinate_field:           str
-
-    :param parallel_polygons:           Choice to parallelize the creation of each polygon from raster centroids.  Set
-                                        to False if wrapping this function in another parallel method.
-    :type parallel_polygons:            bool
 
     :return:                            [0] GeoDataFrame of population per grid cell as polygons
                                         [1] grid cell area value
@@ -334,15 +335,8 @@ def get_raster_data(raster_file: str = None,
     if drop_nan:
         df_raster = df_raster.loc[~df_raster[data_field_name].isnull()].copy()
 
-    # [PARALLEL] generate a Polygon object for each centroid; if parallel, use swifter
-    if parallel_polygons:
-        df_raster['geometry'] = df_raster.swifter.apply(lambda xdf: build_polygon_from_centroid(
-                                                                        x=xdf[x_coordinate_field],
-                                                                        y=xdf[y_coordinate_field],
-                                                                        x_resolution=da_raster.res[1],
-                                                                        y_resolution=da_raster.res[0]), axis=1)
-    else:
-        df_raster['geometry'] = df_raster.apply(lambda xdf: build_polygon_from_centroid(
+    # generate a Polygon object for each centroid
+    df_raster['geometry'] = df_raster.apply(lambda xdf: build_polygon_from_centroid(
                                                                         x=xdf[x_coordinate_field],
                                                                         y=xdf[y_coordinate_field],
                                                                         x_resolution=da_raster.res[1],
@@ -374,8 +368,7 @@ def process_single_year(raster_file: str,
                         state_id_field: str = 'STATEFP',
                         set_county_id_name: str = 'FIPS',
                         weights_file: str = None,
-                        target_year: int = None,
-                        parallel_polygons: bool = False) -> pd.DataFrame:
+                        target_year: int = None) -> pd.DataFrame:
     """Sum gridded population data by its spatially corresponding counties using a weighted area approach.  Each grid
     cell population value gets adjusted using the fraction of its area that is contained within a county.
 
@@ -432,10 +425,6 @@ def process_single_year(raster_file: str,
     :param target_year:                 The year to process in YYYY format.
     :type target_year:                  int
 
-    :param parallel_polygons:           Choice to parallelize the creation of each polygon from raster centroids.  Set
-                                        to False if wrapping this function in another parallel method.
-    :type parallel_polygons:            bool
-
     :return:                            A Pandas DataFrame of population data aggregated by the 'set_county_id_name'
                                         having fields and types of: {county_id_field: str, data_field_name: float}
 
@@ -445,35 +434,20 @@ def process_single_year(raster_file: str,
     gdf_raster, grid_cell_area = get_raster_data(raster_file=raster_file,
                                                  data_field_name=data_field_name,
                                                  drop_nan=drop_nan,
-                                                 parallel_polygons=parallel_polygons,
                                                  x_coordinate_field=x_coordinate_field,
                                                  y_coordinate_field=y_coordinate_field)
 
+    # read in county polygon data
+    gdf_counties = get_county_data(template_raster_file=raster_file,
+                                   county_shapefile=county_shapefile,
+                                   county_geodataframe=county_geodataframe,
+                                   county_id_field=county_id_field,
+                                   state_id_field=state_id_field,
+                                   set_county_id_name=set_county_id_name,
+                                   state_name=state_name)
+
     # if using a preexisting weights file
-    if weights_file:
-
-        gdf_counties = county_geodataframe
-
-        # validate weights file and return as a DataFrame
-        gdf_intersect = validate_weights_file(weights_file, set_county_id_name)
-
-        # join population gridded values
-        gdf_intersect = pd.merge(left=gdf_intersect,
-                                 right=gdf_raster,
-                                 on='cell_index')
-
-    else:
-
-        # read in county polygon data
-        gdf_counties = get_county_data(template_raster_file=raster_file,
-                                       county_shapefile=county_shapefile,
-                                       county_geodataframe=county_geodataframe,
-                                       county_id_field=county_id_field,
-                                       state_id_field=state_id_field,
-                                       set_county_id_name=set_county_id_name)
-
-        # only keep counties associated with the target state
-        gdf_counties = gdf_counties.loc[gdf_counties['state_name'] == state_name].copy()
+    if weights_file is None:
 
         # intersect the counties data and the raster polygonized data
         gdf_intersect = gpd.overlay(gdf_counties, gdf_raster, how='intersection')
@@ -507,6 +481,16 @@ def process_single_year(raster_file: str,
         # calculate the weighted area per grid cell county intersection
         gdf_intersect['weight'] = gdf_intersect['area'] / grid_cell_area
 
+    else:
+
+        # validate weights file and return as a DataFrame
+        gdf_intersect = validate_weights_file(weights_file, set_county_id_name)
+
+        # join population gridded values
+        gdf_intersect = pd.merge(left=gdf_intersect,
+                                 right=gdf_raster,
+                                 on='cell_index')
+
     # update original value with weighted value
     gdf_intersect[data_field_name] = gdf_intersect[data_field_name] * gdf_intersect['weight']
 
@@ -528,7 +512,6 @@ def process_single_year(raster_file: str,
     population_balance = expected_population - aggregated_population
 
     if abs(population_balance) > 0:
-
         # spread balance between all counties
         pop_per_county_balance = population_balance / df_county_sum.shape[0]
 
@@ -536,7 +519,7 @@ def process_single_year(raster_file: str,
         df_county_sum[data_field_name] += pop_per_county_balance
 
         print(f"""Population balance of {population_balance} for {state_name} and year {data_field_name} due to  
-                    rounding was spread evenly across all counties.""")
+                      rounding was spread evenly across all counties.""")
 
     # write output file if desired
     if output_directory is not None:
@@ -646,17 +629,12 @@ def population_to_tell_counties(raster_list: List[str],
 
     """
 
-    # read in county polygon data
-    gdf_counties = get_county_data(template_raster_file=raster_list[0],
-                                   county_shapefile=county_shapefile,
-                                   county_id_field=county_id_field,
-                                   set_county_id_name=set_county_id_name)
-
     # run all years in parallel
     results = Parallel(n_jobs=n_jobs)(
         delayed(process_single_year)(
             raster_file=i,
-            county_geodataframe=gdf_counties,
+            county_shapefile=county_shapefile,
+            county_geodataframe=None,  # gdf_counties,
             data_field_name=str(year_list[idx]),  # set year as data field name
             x_coordinate_field=x_coordinate_field,
             y_coordinate_field=y_coordinate_field,
