@@ -2,6 +2,7 @@ from dataclasses import dataclass, field
 
 from im3components.gcam_cerf_expansion_plan import gcam_cerf_expansion
 from im3components.wrf_tell.wrf_tell_counties import wrf_to_tell_counties
+from im3components.pop_tell_counties import population_to_tell_counties
 
 
 @dataclass
@@ -17,6 +18,13 @@ class Component:
 
 def get_components():
     return [
+
+        Component(name='population_tell_counties',
+                  parent='Population',
+                  child='TELL',
+                  description='Aggregate (sum) gridded population data to counties.',
+                  language='Python',
+                  code=population_to_tell_counties),
 
         Component(name='wrf_tell_counties',
                   parent='WRF',

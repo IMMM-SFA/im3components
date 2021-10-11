@@ -11,13 +11,15 @@ import im3components as cmp
 class TestWrfTell(unittest.TestCase):
     """Tests for the WRF to TELL county mean aggregations"""
 
+    COMPONENT_NAME = 'wrf_tell_counties'
+
     def test_county_aggregation(self):
         """Ensure that a single time slice and county produces the same result."""
 
         data_path = f'{os.path.dirname(os.path.abspath(__file__))}/wrf_tell_data'
 
         registry = cmp.registry()
-        wrf_to_tell_counties = registry.get_function(registry.list_related('tell')[0])
+        wrf_to_tell_counties = registry.get_function(TestWrfTell.COMPONENT_NAME)
 
         # remove weights file if it exists
         try:

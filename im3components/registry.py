@@ -45,10 +45,6 @@ class Registry:
             raise AttributeError(msg)
 
 
-
-
-
-
 def registry():
     """Instantiate registry class."""
 
