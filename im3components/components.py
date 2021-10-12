@@ -27,7 +27,7 @@ def get_components():
                   child='demo',
                   description='Demonstration of calling an R function from Python.',
                   language='R',
-                  code=rfn.create(pkg_resources.resource_filename('im3components', 'r/r_demo.R'), 'r_demo')),
+                  code=rfn.create(pkg_resources.resource_filename('im3components', 'R/r_demo.R'), 'r_demo')),
 
         Component(name='population_tell_counties',
                   parent='Population',
