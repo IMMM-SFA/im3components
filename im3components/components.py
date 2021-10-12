@@ -8,6 +8,7 @@ from im3components.wrf_tell.wrf_tell_counties import wrf_to_tell_counties
 from im3components.pop_tell_counties import population_to_tell_counties
 
 
+
 @dataclass
 class Component:
 
@@ -27,7 +28,7 @@ def get_components():
                   child='demo',
                   description='Demonstration of calling an R function from Python.',
                   language='R',
-                  code=rfn.create(pkg_resources.resource_filename('im3components', 'R/r_demo.R'), 'r_demo')),
+                  code=rfn.create(pkg_resources.resource_filename('im3components', 'r/r_demo.R'), 'r_demo')),
 
         Component(name='population_tell_counties',
                   parent='Population',
