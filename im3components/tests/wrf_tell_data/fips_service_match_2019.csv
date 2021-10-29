@@ -1,0 +1,3 @@
+year,utility_number,utility_name,state_abbreviation,state_name,state_fips,county_name,county_fips,ba_number,ba_abbreviation,ba_name
+2019,15500.0,Puget Sound Energy Inc,wa,Washington,53000.0,King County,53033.0,15500.0,PSEI,Puget Sound Energy
+2019,15500.0,Puget Sound Energy Inc,wa,Washington,53000.0,Kitsap County,53035.0,15500.0,PSEI,Puget Sound Energy

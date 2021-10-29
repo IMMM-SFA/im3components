@@ -32,6 +32,22 @@ def wrf_to_tell_balancing_authorities(
     variables: List[str] = None,
     precisions: List[int] = None,
 ):
+    """
+    Aggregate mean county data to mean balancing authority data.
+
+    :param int year: year of data to aggregate to balancing authority level
+    :param str balancing_authority_to_fips_file: path to the CSV file mapping county FIPS code to balancing authority
+    :param str county_population_by_year_file: path to the CSV file containing the county populations by year
+    :param str county_data_directory: path to the directory containing the mean county data
+    :param str output_directory: path to the directory to write output files
+    :param str output_file_infix: string to insert in the middle of the output file, between BA and year
+    :param str county_data_prefix: prefix at the beginning of mean county data files, before the datetime
+    :param str county_data_suffix: suffix at the end of mean county data files, after the datetime
+    :param str county_data_time_format: format string of the datetimes in the mean county data filenames
+    :param list(str) variables: list of the variables to aggregate by balancing authority
+    :param list(int) precisions: list of precisions corresponding to the variables to aggregate
+    """
+
     begin_time = datetime.datetime.now()
 
     if variables is None:
