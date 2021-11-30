@@ -11,6 +11,7 @@
 
 # Import all of the required libraries and packages:
 import argparse
+import distutils.util
 import glob
 import numpy as np
 import pandas as pd
@@ -21,6 +22,7 @@ from typing import List
 
 def wrf_to_tell_balancing_authorities(
     year: int,
+    is_historical: bool,
     balancing_authority_to_fips_file: str,
     county_population_by_year_file: str,
     county_data_directory: str,
@@ -36,6 +38,7 @@ def wrf_to_tell_balancing_authorities(
     Aggregate mean county data to mean balancing authority data.
 
     :param int year: year of data to aggregate to balancing authority level
+    :param bool is_historical: true if working with historical data as opposed to future/SSP data
     :param str balancing_authority_to_fips_file: path to the CSV file mapping county FIPS code to balancing authority
     :param str county_population_by_year_file: path to the CSV file containing the county populations by year
     :param str county_data_directory: path to the directory containing the mean county data
@@ -69,14 +72,40 @@ def wrf_to_tell_balancing_authorities(
     }).drop_duplicates()
 
     # Read the county population by year file
-    population_df = pd.read_csv(
-        county_population_by_year_file,
-        index_col=None,
-        header=0,
-    )[['county_FIPS', f'pop_{year}']].rename(columns={
-        'county_FIPS': 'County_FIPS',
-        f'pop_{year}': 'Population',
-    })
+    if is_historical:
+        # historical data is available between 2000 and 2019, so clamp to this range
+        y = year
+        if year < 2000:
+            y = 2000
+        elif year > 2019:
+            y = 2019
+        population_df = pd.read_csv(
+            county_population_by_year_file,
+            index_col=None,
+            header=0,
+        )[['county_FIPS', f'pop_{y}']].rename(columns={
+            'county_FIPS': 'County_FIPS',
+            f'pop_{y}': 'Population',
+        }).sort_values('County_FIPS')
+        population_df['Population'] = population_df['Population'].round(0).astype(int)
+
+    else:
+        # future data is available at decade resolution so linearly interpolate between decades
+        population_df = pd.read_csv(
+            county_population_by_year_file,
+            index_col=None,
+            header=0
+        ).rename(columns={
+            'FIPS': 'County_FIPS',
+        }).drop(columns=['state_name']).set_index('County_FIPS').T
+        population_df.index = population_df.index.astype(int)
+        population_df = population_df.sort_index().reindex(
+            range(population_df.index.min(), population_df.index.max()+1)
+        ).interpolate().T
+        population_df = population_df[[year]].reset_index().rename(columns={
+            year: 'Population'
+        }).sort_values('County_FIPS')
+        population_df['Population'] = population_df['Population'].round(0).astype(int)
 
     # Merge by county
     ba_mapping_df = ba_mapping_df.merge(population_df, on='County_FIPS')
@@ -140,6 +169,13 @@ if __name__ == '__main__':
         metavar='2021',
         type=int,
         help='year to process data for',
+    )
+    parser.add_argument(
+        '-h',
+        '--is-historical',
+        type=distutils.util.strtobool,
+        help='true if processing historical data as opposed to future/SSP data',
+        required=True,
     )
     parser.add_argument(
         '-v',
@@ -212,6 +248,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
     wrf_to_tell_balancing_authorities(
         year=args.year,
+        is_historical=args.is_historical,
         balancing_authority_to_fips_file=args.balancing_authority_to_county,
         county_population_by_year_file=args.county_population_by_year,
         county_data_directory=args.county_mean_data_directory,
