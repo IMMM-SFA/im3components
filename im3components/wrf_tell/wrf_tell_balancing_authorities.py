@@ -171,7 +171,6 @@ if __name__ == '__main__':
         help='year to process data for',
     )
     parser.add_argument(
-        '-h',
         '--is-historical',
         type=distutils.util.strtobool,
         help='true if processing historical data as opposed to future/SSP data',
