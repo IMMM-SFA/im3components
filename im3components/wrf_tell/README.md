@@ -30,5 +30,5 @@ sbatch launch_counties.sl
 
 5. You can check the status of your job by running the command ```squeue --me```. You should also get email confirmations when the job starts, ends, or fails.
 
-
+![Input Directories](images/directories_one.png)
 
