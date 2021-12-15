@@ -45,3 +45,31 @@ sbatch launch_counties.sl
 ```
 
 6. You can check the status of your job by running the command ```squeue --me```. You should also get email confirmations when the job starts, ends, or fails.
+
+## To run the wrf_tell_balancing_authorities.py step:
+1. Download the ancillary population and geolocation data needed to process the data: 
+
+2. Download the python scripts by making a local clone of the wrf_tell_ba branch of the im3components repository.
+
+3. Find the *launch_balancing_authorities.sl* slurm script, open it in your favorite text editor, and make the following changes:
+  * Make all the same account information changes as above. The estimated run time for this step is 8 hrs for a 40 year period.
+  * Set the paths in the srun section:
+    * “--is-historical” should should be set to *True* if you are running the historical period or *False* if you are doing a future scenario
+    * “--balancing-authority-to-county” should point to the *fips_service_match_2019.csv* file
+    * “--county-population-by-year” should point to the *county_populations_2000_to_2019.csv* file if you are running the historical period and to either the *ssp3_county_population.csv* or *ssp5_county_popluation.csv* file depending on which future scenario you are running.
+    * “--county-mean-data-directory_directory” should point to where you stored the output files from the first step (see the table above)
+    * “--output_directory” should point to where you want to store the output files (see the table above)
+    * The final line of the slurm script provides the year range of data you want to process
+  * After these changes, the *launch_counties.sl* script should look something like this:
+
+![Lauch Counties](images/launch_counties_completed.png)
+
+4. Make sure your changes are saved. Log on to NERSC and upload all the files to a folder on your scratch user directory. You can get to your scratch directory by running ```cd $SCRATCH```. You should also upload the *fips_service_match_2019.csv*, *county_populations_2000_to_2019.csv*, *ssp3_county_population.csv*, and *ssp5_county_population.csv* files to the same directory as the code needs these ancillary files to run.
+
+5. Execute the following commands from your scratch directory where you will submit the job. Note that you shouldn’t run jobs from your home directory on NERSC.
+```
+module load python
+sbatch launch_balancing_authorities.sl
+```
+
+6. You can check the status of your job by running the command ```squeue --me```. You should also get email confirmations when the job starts, ends, or fails.
