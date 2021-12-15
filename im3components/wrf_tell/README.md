@@ -17,8 +17,7 @@ This page contains instructions for running the sequence of processing scripts t
     * The final line of the slurm script should point to the directory where the WRF output files are stored (see the tables below)
   * After these changes the “launch_counties.sl” script should look something like this:
 
-.. image:: images/launch_counties_completed.png
-   :width: 900
-   :align: center
+![Lauch Counties](images/launch_counties_completed.png)
+
 
 
