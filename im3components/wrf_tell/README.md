@@ -24,11 +24,12 @@ This page contains instructions for running the sequence of processing scripts t
 
 4. Execute the following commands from your scratch directory on NERSC where you will submit the job (you shouldn’t run jobs from your home directory on NERSC):
 >
-  ```module load python
-  sbatch launch_counties.sl
-  ```
+```
+module load python
+sbatch launch_counties.sl
+```
 
-5. You can check the status of your job by running the command: “squeue --me”. You should also get email confirmations when the job starts, ends, or fails.
+5. You can check the status of your job by running the command: ```squeue --me```. You should also get email confirmations when the job starts, ends, or fails.
 
 
 
