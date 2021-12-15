@@ -6,10 +6,10 @@ This page contains instructions for running the sequence of processing scripts t
 1. Download the python scripts by making a local clone of the wrf_tell_ba branch of the im3components repository.
 
 2. Find the “launch_counties.sl” slurm script in the wrf_tell folder. Open the script in your favorite text editor and make the following changes:
-  * Update the “-A” account flag to m2702 (IM3’s NERSC account number)
-  * Update the “-t” time flag to 15 hrs (a conservative estimate of the processing time for a 40-year period run of this processing step). Note that you can get through the NERSC queue faster if you break this step down into decadal increments. Each decade takes around 3 hours to run. To run this first processing step on a single decade instead of all the WRF output files in a given directory change the last line of the slurm script to, for example, “…/wrfout_d01_2040*”
-  * Update the “--job-name” flag to something consistent with the period being processed.
-  * Update the “--mail-user” flag to your email address.
+  * Set the “-A” account flag to m2702 (IM3’s NERSC account number)
+  * Set the “-t” time flag to 15 hrs (a conservative estimate of the processing time for a 40-year period run of this processing step). Note that you can get through the NERSC queue faster if you break this step down into decadal increments. Each decade takes around 3 hours to run. To run this first processing step on a single decade instead of all the WRF output files in a given directory change the last line of the slurm script to, for example, “…/wrfout_d01_2040*”
+  * Set the “--job-name” flag to something consistent with the period being processed.
+  * Set the “--mail-user” flag to your email address.
   * The “--p” queue flag is set to “regular” by default. If you want to do a quick run to make sure the script is working properly you can set this to “debug” and drop the runtime down to something small (e.g., 5-10 minutes). This will run the script using NERSC's debug queue which is much faster. Note that there is a hard 30-minute runtime limit on the debug queue.
   * Set the paths in the srun section:
     * “--shapefile-path” should point to the county boundaries shapefile
@@ -23,13 +23,12 @@ This page contains instructions for running the sequence of processing scripts t
 3. Make sure your changes are saved. Log on to NERSC and upload all the files from the wrf_tell folder to a folder on your scratch user directory on NERSC (e.g., my scratch user directory is /global/cscratch1/sd/cburley/). You should also upload the “tl_2020_us_county.shp” file to the same directory as the code needs this shapefile to run.
 
 4. Execute the following commands from your scratch directory on NERSC where you will submit the job (you shouldn’t run jobs from your home directory on NERSC):
->
 ```
 module load python
 sbatch launch_counties.sl
 ```
 
-5. You can check the status of your job by running the command: ```squeue --me```. You should also get email confirmations when the job starts, ends, or fails.
+5. You can check the status of your job by running the command ```squeue --me```. You should also get email confirmations when the job starts, ends, or fails.
 
 
 
