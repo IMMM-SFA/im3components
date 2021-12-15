@@ -20,9 +20,9 @@ This page contains instructions for running the sequence of processing scripts t
 
 ![Lauch Counties](images/launch_counties_completed.png)
 
-3. Make sure your changes are saved. Log on to NERSC and upload all the files from the wrf_tell folder to a folder on your scratch user directory on NERSC (e.g., my scratch user directory is /global/cscratch1/sd/cburley/). You should also upload the “tl_2020_us_county.shp” file to the same directory as the code needs this shapefile to run.
+3. Make sure your changes are saved. Log on to NERSC and upload all the files from the wrf_tell folder to a folder on your scratch user directory. You can get to your scratch directory by running ```cd $SCRATCH```. You should also upload the “tl_2020_us_county.shp” file to the same directory as the code needs this shapefile to run.
 
-4. Execute the following commands from your scratch directory on NERSC where you will submit the job (you shouldn’t run jobs from your home directory on NERSC):
+4. Execute the following commands from your scratch directory where you will submit the job. Note that you shouldn’t run jobs from your home directory on NERSC.
 ```
 module load python
 sbatch launch_counties.sl
