@@ -34,7 +34,7 @@ This page contains instructions for running the sequence of processing scripts t
     * The final line of the slurm script should point to the directory where the raw WRF files are stored (see the table above)
   * After these changes, the *launch_counties.sl* script should look something like this:
 
-![Lauch Counties](images/launch_balancing_authorities_completed.png)
+![Launch Counties](images/launch_counties_completed.png)
 
 4. Make sure your changes are saved. Log on to NERSC and upload all the files to a folder on your scratch user directory. You can get to your scratch directory by running ```cd $SCRATCH```. You should also upload the *tl_2020_us_county.shp* file to the same directory as the code needs this shapefile to run.
 
@@ -62,7 +62,7 @@ sbatch launch_counties.sl
     * The final line of the slurm script provides the year range of data you want to process
   * After these changes, the *launch_balancing_authorities.sl* script should look something like this:
 
-![Lauch Counties](images/launch_counties_completed.png)
+![Launch BAs](images/launch_balancing_authorities_completed.png)
 
 4. Make sure your changes are saved. Log on to NERSC and upload all the files to a folder on your scratch user directory. You can get to your scratch directory by running ```cd $SCRATCH```. You should also upload the *fips_service_match_2019.csv*, *county_populations_2000_to_2019.csv*, *ssp3_county_population.csv*, and *ssp5_county_population.csv* files to the same directory as the code needs these ancillary files to run.
 
