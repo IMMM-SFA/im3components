@@ -29,7 +29,7 @@ sbatch launch_counties.sl
 ```
 
 5. You can check the status of your job by running the command ```squeue --me```. You should also get email confirmations when the job starts, ends, or fails.
-
+>
 | Scenario  | In/Out | Path |
 | ------------- | ------------- |
 | Historical (1980-2019) | Raw Input | /global/cfs/cdirs/m2702/wrf_to_tell/wrf_tell_counties_output/CONUS_TGW_WRF_Historical/ |
