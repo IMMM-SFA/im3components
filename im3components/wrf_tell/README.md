@@ -6,12 +6,16 @@ This page contains instructions for running the sequence of processing scripts t
 
 | Scenario | In/Out | Path |
 | ------------- | ------------- | ------------- |
-| Historical (1980-2019) | Input | /global/cfs/cdirs/m2702/wrf_to_tell/wrf_tell_counties_output/CONUS_TGW_WRF_Historical/ |
+| Historical (1980-2019) | Input | /global/cfs/cdirs/m2702/gsharing/CONUS_TGW_WRF_Historical/ |
 | Historical (1980-2019) | Step 1 Output | /global/cfs/cdirs/m2702/wrf_to_tell/wrf_tell_counties_output/CONUS_TGW_WRF_Historical/ |
 | Historical (1980-2019) | Step 2 Output | /global/cfs/cdirs/m2702/wrf_to_tell/wrf_tell_bas_output/CONUS_TGW_WRF_Historical/ |
 | RCP8.5/SSP5 Hot (2020-2059) | Input | /global/cfs/cdirs/m2702/gsharing/CONUS_TGW_WRF_SSP585_HOT_NEAR/ |
 | RCP8.5/SSP5 Hot (2020-2059) | Step 1 Output | /global/cfs/cdirs/m2702/wrf_to_tell/wrf_tell_counties_output/CONUS_TGW_WRF_SSP585_HOT_NEAR/ |
 | RCP8.5/SSP5 Hot (2020-2059) | Step 2 Output | /global/cfs/cdirs/m2702/wrf_to_tell/wrf_tell_bas_output/CONUS_TGW_WRF_SSP585_HOT_NEAR/ |
+| RCP8.5/SSP5 Hot (2060-2099) | Input | /global/cfs/cdirs/m2702/gsharing/CONUS_TGW_WRF_SSP585_HOT_FAR/ |
+| RCP8.5/SSP5 Hot (2060-2099) | Step 1 Output | /global/cfs/cdirs/m2702/wrf_to_tell/wrf_tell_counties_output/CONUS_TGW_WRF_SSP585_HOT_FAR/ |
+| RCP8.5/SSP5 Hot (2060-2099) | Step 2 Output | /global/cfs/cdirs/m2702/wrf_to_tell/wrf_tell_bas_output/CONUS_TGW_WRF_SSP585_HOT_FAR/ |
+
 
 ## To run the wrf_tell_counties.py step:
 1. Download the python scripts by making a local clone of the wrf_tell_ba branch of the im3components repository.
