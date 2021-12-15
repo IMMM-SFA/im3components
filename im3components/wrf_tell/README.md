@@ -17,16 +17,16 @@ This page contains instructions for running the sequence of processing scripts t
 | RCP8.5/SSP5 Hot (2060-2099) | Step 2 Output | /global/cfs/cdirs/m2702/wrf_to_tell/wrf_tell_bas_output/CONUS_TGW_WRF_SSP585_HOT_FAR/ |
 
 ## To run the wrf_tell_counties.py step:
-1. Download the ancillary population and geolocation data needed to process the data: 
+1. Download the ancillary population and geolocation data needed to process the data: [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.5784542.svg)](https://doi.org/10.5281/zenodo.5784542).
 
 2. Download the python scripts by making a local clone of the wrf_tell_ba branch of the im3components repository.
 
 3. Find the *launch_counties.sl* slurm script, open it in your favorite text editor, and make the following changes:
   * Set the “-A” account flag to m2702 (IM3’s NERSC account number)
-  * Set the “-t” time flag to 12-15 hrs (a conservative estimate of the processing time for a 40-year period run of this processing step). Note that you can get through the NERSC queue faster if you break this step down into decadal increments. Each decade takes around 3 hours to run. To run this first processing step on a single decade instead of all the WRF output files in a given directory, change the last line of the slurm script to, for example, “*…/wrfout_d01_204*”
+  * Set the “-t” time flag to 12-15 hrs (a conservative estimate of the processing time for a 40-year period run of this processing step). Note that you can get through the NERSC queue faster if you break this step down into decadal increments. Each decade takes around 3 hours to run. To run this first processing step on a single decade instead of all the WRF output files in a given directory, change the last line of the slurm script to, for example, “…/wrfout_d01_204*”
   * Set the “--job-name” flag to something consistent with the period being processed.
   * Set the “--mail-user” flag to your email address.
-  * The “--p” queue flag is set to “regular” by default. If you want to do a quick run to make sure the script is working properly you can set this to “debug” and drop the runtime down to something small (e.g., 5-10 minutes). This will run the script using NERSC's debug queue which is much faster and enables a quick run-break-fix cycle. Note that there is a hard 30-minute runtime limit on the debug queue.
+  * The “--p” queue flag is set to **regular** by default. If you want to do a quick run to make sure the script is working properly you can set this to **debug** and drop the runtime down to something small (e.g., 5-10 minutes). This will run the script using NERSC's debug queue which is much faster and enables a quick run-break-fix cycle. Note that there is a hard 30-minute runtime limit on the debug queue.
   * Set the paths in the srun section:
     * “--shapefile-path” should point to the *tl_2020_us_county.shp* shapefile
     * “--weights-file-path” should point to the *grid_cell_to_county_weight.parquet* file
@@ -47,7 +47,7 @@ sbatch launch_counties.sl
 6. You can check the status of your job by running the command ```squeue --me```. You should also get email confirmations when the job starts, ends, or fails.
 
 ## To run the wrf_tell_balancing_authorities.py step:
-1. Download the ancillary population and geolocation data needed to process the data: 
+1. Download the ancillary population and geolocation data needed to process the data: [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.5784542.svg)](https://doi.org/10.5281/zenodo.5784542).
 
 2. Download the python scripts by making a local clone of the wrf_tell_ba branch of the im3components repository.
 
