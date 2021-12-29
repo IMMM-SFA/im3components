@@ -3,6 +3,7 @@ from dataclasses import dataclass, field
 
 import r_functions as rfn
 
+from im3components.demo.py_demo import py_demo
 from im3components.gcam_cerf_expansion_plan import gcam_cerf_expansion
 from im3components.wrf_tell.wrf_tell_balancing_authorities import wrf_to_tell_balancing_authorities
 from im3components.wrf_tell.wrf_tell_counties import wrf_to_tell_counties
@@ -23,12 +24,19 @@ class Component:
 def get_components():
     return [
 
+        Component(name='demo_demo_py',
+                  parent='demo',
+                  child='demo',
+                  description='Demonstration of calling a Python function.',
+                  language='Python',
+                  code=py_demo),
+
         Component(name='demo_demo_r',
                   parent='demo',
                   child='demo',
                   description='Demonstration of calling an R function from Python.',
                   language='R',
-                  code=rfn.create(pkg_resources.resource_filename('im3components', 'r/r_demo.R'), 'r_demo')),
+                  code=rfn.create(pkg_resources.resource_filename('im3components', 'demo/r_demo.R'), 'r_demo')),
 
         Component(name='population_tell_counties',
                   parent='Population',
