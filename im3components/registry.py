@@ -1,6 +1,9 @@
-from dataclasses import dataclass
+import pkg_resources
 from typing import List
-from rpy2.objects.packages import importr
+from dataclasses import dataclass
+
+import importlib
+import r_functions as rfn
 
 from im3components.components import Component, get_components
 
@@ -30,12 +33,26 @@ class Registry:
     def get_component(self, component_name: str):
         """Return a component function by its name."""
 
-        # list of class or function objects related to the target component name
-        protocol = [i.code for i in self.components if i.name == component_name]
+        # dict of class or function objects related to the target component name
+        protocol = [[i.package.strip(), i.method.strip(), i.language.strip()] for i in self.components if i.name == component_name]
 
         # expected condition where there is one function
         if len(protocol) == 1:
-            return protocol[0]
+            package, method, language = protocol[0]
+
+            # if using R
+            if language.casefold() == 'r':
+
+                # split package name out of object oriented spec to use r_functions call
+                package_split = package.split('.')
+                package_path = '/'.join(package_split[1:])
+                file_path = pkg_resources.resource_filename(package_split[0], f'{package_path}.R')
+
+                return rfn.create(file_path, method)
+
+            # if Python
+            else:
+                return getattr(importlib.import_module(package), method)
 
         elif len(protocol) == 0:
             msg = f"Component name '{component_name}' does not match any in the current registry."
@@ -50,12 +67,11 @@ class Registry:
 
         pass
 
+    # TODO:  setup help call on R functions
     def help(self, component_name: str):
         """Generate help from docstring of component."""
 
         fn = self.get_component(component_name=component_name)
-
-        base = importr('base')
 
         return help(fn)
 
@@ -73,11 +89,3 @@ def registry():
     component_list = get_components()
 
     return Registry(component_list)
-
-
-if __name__ == '__main__':
-
-    reg = registry()
-
-    reg.help(component_name='demo_demo_py')
-
