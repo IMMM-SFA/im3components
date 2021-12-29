@@ -1,7 +1,7 @@
 #!/bin/sh
 
 #SBATCH -n 1
-#SBATCH -t 06:00:00
+#SBATCH -t 20:00:00
 #SBATCH -A m2702
 #SBATCH -J wrf_to_xanthos
 #SBATCH -C knl
@@ -20,25 +20,28 @@ module load python/3.8-anaconda-2020.11
 # 
 # To run this script:
 # cd /global/cfs/cdirs/m2702/gcamusa/wrf_to_xanthos
-# sbatch wrf_to_xanthos_process.sh 
+# sbatch wrf_to_xanthos_process_historical.sh 
 # squeue -u USERNAME
 #
 # ------------------------------------------------------
 
+# Combine R pre-processed data
+
 cd /global/cfs/cdirs/m2702/gcamusa/wrf_to_xanthos
 
 # Run R script to create .csv files
-# date
-# R CMD BATCH /global/cfs/cdirs/m2702/gcamusa/wrf_to_xanthos/wrf_to_xanthos_process.R
-# date
-# echo 'completed wrf_to_xanthos_process.R'
+date
+R CMD BATCH /global/cfs/cdirs/m2702/gcamusa/wrf_to_xanthos/wrf_to_xanthos_process_historical.R 
+date
+echo 'completed wrf_to_xanthos_process_hisotrical.R'
 
+# Preparing to run python scripts
 cd /global/cfs/cdirs/m2702/gcamusa/wrf_to_xanthos/im3components
 source venv/bin/activate
 cd /global/cfs/cdirs/m2702/gcamusa/wrf_to_xanthos
 
 # Run Python script to convert .csv files to .npy
 date
-python /global/cfs/cdirs/m2702/gcamusa/wrf_to_xanthos/wrf_to_xanthos_process.py
+python /global/cfs/cdirs/m2702/gcamusa/wrf_to_xanthos/wrf_to_xanthos_process_historical.py
 date
-echo 'completed wrf_to_xanthos_process.py'
+echo 'completed wrf_to_xanthos_process_historical.py'

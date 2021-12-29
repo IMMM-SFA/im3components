@@ -12,21 +12,34 @@ ncdf_path_i = paste0("C:/Z/models/xanthosWRFData/wrfout_d01_2009-01-01_00-00-00.
 ncdf_path_i = paste0("C:/Z/models/xanthosWRFData/wrfout_d01_2009-01-08_01-00-00.nc")
 ncdf_path_i = paste0("C:/Z/models/xanthosWRFData/wrfout_d01_1979-01-01_00-00-00.nc")
 ncdf_path_i = paste0("C:/Z/models/xanthosWRFData")
-target_grid_i = "C:/Z/models/xanthos/example/input/reference/coordinates.csv"
-params_i = c("RAINC","Q2","PSFC","T2","GLW","SWDOWN","V10","U10")
+target_grid_i = im3components::data_coordinates_xanthos_reference
+#params_i = c("RAINC","RAINNC","RAINSH","Q2","PSFC","T2","GLW","SWDOWN","V10","U10")
+params_i = c("RAINC","RAINNC","RAINSH")
 out_dir_i='output'
 save_i = T
 ncdf_resampled_i = im3components::data_ncdf_resampled_wrf_xanthos
-aggregation_method_i = c("mean","mean","mean","mean","mean","mean","mean","mean")
+aggregation_method_i="mean"
 
-im3components::wrf_xanthos_resample(
+im3components::resample_wrf_hourly_to_month(
   ncdf_path = ncdf_path_i,
   target_grid = target_grid_i,
   params = params_i,
   aggregation_method = aggregation_method_i,
   out_dir= out_dir_i,
   save = save_i,
-  ncdf_resampled = ncdf_resampled_i)->a
+  ncdf_resampled = ncdf_resampled_i
+  )->a
+
+# Check
+# a %>% dplyr::select(-unit) %>% tidyr::spread(key="param",value="value") %>%as.data.frame()
+#
+# ncdf_path = ncdf_path_i
+# target_grid = target_grid_i
+# params = params_i
+# aggregation_method = aggregation_method_i
+# out_dir= out_dir_i
+# save = save_i
+# ncdf_resampled = ncdf_resampled_i
 
 # Plot Map to View Data
 library(dplyr); library(rmap)
@@ -143,4 +156,50 @@ ggplot() +
 # ncdf_resampled= im3components::data_ncdf_resampled_wrf_xanthos
 # aggregation_method = "mean"
 
+}
+
+
+#...........................
+# xanthos_gcam_create_xml
+#..........................
+
+if(T){
+
+  xanthos_runoff_csv_i = "C:/Z/models/00tests/xanthosGlobalRuns/Basin_runoff_km3peryear_pm_abcd_mrtm_noresm1-m_rcp8p5_1950_2099.csv"
+  gcamdata_folder_i = "C:/Z/models/GCAMVersions/gcam-usa-im3/input/gcamdata"
+  out_dir_i = "C:/Z/models/00tests/"
+
+  xanthos_gcam_create_xml (xanthos_runoff_csv = xanthos_runoff_csv_i,
+                           gcamdata_folder = gcamdata_folder_i,
+                           out_dir = out_dir_i)
+
+}
+
+#.......................
+# reticulate
+#.......................
+#install.packages('Rcpp')
+#install.packages("reticulate")
+# library(Rcpp)
+# library(reticulate)
+# np <- import("numpy",convert=FALSE)
+
+base_npy_list = list("C:/Z/models/00tests/xanthos_im3_test/example/input/climate/pr_gpcc_watch_monthly_mmpermth_1971_2001.npy")
+target_npy_list = list("C:/Z/models/00tests/xanthos_im3_test/example/input/climate/pr_gpcc_watch_monthly_mmpermth_1971_2001.npy")
+base_year_month_start_i = "1971_01"
+target_year_month_start_i = "1979_01"
+out_dir_i = "output"
+
+for(i in 1:length(base_npy_list)){
+
+  base_npy_i = base_npy_list[[i]]
+  target_npy_i = target_npy_list[[i]]
+
+im3components::xanthos_npy_expand(
+  base_npy =base_npy_i,
+  base_year_month_start = base_year_month_start_i,
+  target_npy = target_npy_i,
+  target_year_month_start = target_year_month_start_i,
+  out_dir = out_dir_i
+)
 }
