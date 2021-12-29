@@ -1,0 +1,22 @@
+name: GCAM
+long name: Global Change Analysis Model
+description: "A global model that represents the behavior of, and interactions between five systems: the energy system, water, agriculture and land use, the economy, and the climate"
+url: https://github.com/JGCRI/gcam-core
+language: c++
+parameters:
+inputs:
+outputs:
+  - name: water demand
+    descriptioin: flux of local water volume demanded for use by municipalities and industries
+    unit: m3/s
+    type: netcdf
+    resolution:
+      spatial:
+        unit: degree
+        crs: WGS84
+        epsg: 4326
+        x: 0.125
+        y: 0.125
+      temporal:
+        unit: month
+        interval: 1

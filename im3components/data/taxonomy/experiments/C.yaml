@@ -1,0 +1,36 @@
+name: Experiment C
+description: Water scarcity research
+url:
+couplings:
+  - from: WRF
+    to: CLM
+    interface: wrf_clm
+    variables:
+      - from: surface pressure
+        to: surface pressure
+      - from: temperature
+        to: temperature
+      - from: wind velocity
+        to: wind speed
+      - from: specific humidity
+        to: specific humidity
+      - from: longwave radiation
+        to: longwave radiation
+      - from: shortwave radiation
+        to: solar radiation
+      - from: precipitation
+        to: precipitation
+  - from: CLM
+    to: mosartwmpy
+    interface:
+    variables:
+      - from: surface runoff
+        to: surface runoff
+      - from: subsurface runoff
+        to: subsurface runoff
+  - from: GCAM
+    to: mosartwmpy
+    interface:
+    variables:
+      - from: water demand
+        to: water demand
