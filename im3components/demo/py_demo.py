@@ -14,4 +14,4 @@ def py_demo(x: Union[int, float], y: Union[int, float]) -> Union[int, float]:
 
     """
 
-    return x**2 + y**2
+    return (x*2)**2 + y**2
