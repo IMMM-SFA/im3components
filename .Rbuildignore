@@ -1,2 +1,5 @@
+^renv$
+^renv\.lock$
+^requirements\.txt$
 ^im3components\.Rproj$
 ^\.Rproj\.user$
