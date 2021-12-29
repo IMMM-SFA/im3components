@@ -10,7 +10,7 @@ import im3components.pop_tell_counties as pop
 class TestPopTellCounties(unittest.TestCase):
 
     COMPONENT_NAME = 'population_tell_counties'
-    COUNTY_SHAPEFILE = pkg_resources.resource_filename('im3components', 'tests/wrf_tell_data/test_counties.shp')
+    COUNTY_SHAPEFILE = pkg_resources.resource_filename('im3components', 'tests/data/wrf_to_tell/test_counties.shp')
     RASTER_FILE = pkg_resources.resource_filename('im3components', 'tests/data/test_population.tif')
     WEIGHTS_FILE_VALID = pkg_resources.resource_filename('im3components', 'tests/data/test_population_weights_valid.csv')
     WEIGHTS_FILE_INVALID_A = pkg_resources.resource_filename('im3components', 'tests/data/test_population_weights_invalid_a.csv')

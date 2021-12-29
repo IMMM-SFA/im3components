@@ -4,8 +4,8 @@ from dataclasses import dataclass, field
 import r_functions as rfn
 
 from im3components.gcam_cerf_expansion_plan import gcam_cerf_expansion
-from im3components.wrf_tell.wrf_tell_balancing_authorities import wrf_to_tell_balancing_authorities
-from im3components.wrf_tell.wrf_tell_counties import wrf_to_tell_counties
+from im3components.wrf_to_tell.wrf_tell_balancing_authorities import wrf_to_tell_balancing_authorities
+from im3components.wrf_to_tell.wrf_tell_counties import wrf_to_tell_counties
 from im3components.pop_tell_counties import population_to_tell_counties
 
 
@@ -37,14 +37,14 @@ def get_components():
                   language='Python',
                   code=population_to_tell_counties),
 
-        Component(name='wrf_tell_counties',
+        Component(name='wrf_to_tell_counties',
                   parent='WRF',
                   child='TELL',
                   description='Convert gridded WRF data to mean county data.',
                   language='Python',
                   code=wrf_to_tell_counties),
 
-        Component(name='wrf_tell_balancing_authorities',
+        Component(name='wrf_to_tell_balancing_authorities',
                   parent='WRF',
                   child='TELL',
                   description='Convert mean county data to mean balancing authority data.',
