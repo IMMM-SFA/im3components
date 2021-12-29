@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from typing import List
+from rpy2.objects.packages import importr
 
 from im3components.components import Component, get_components
 
@@ -54,6 +55,8 @@ class Registry:
 
         fn = self.get_component(component_name=component_name)
 
+        base = importr('base')
+
         return help(fn)
 
     def run(self, component_name: str, *args, **kwargs):
@@ -70,3 +73,11 @@ def registry():
     component_list = get_components()
 
     return Registry(component_list)
+
+
+if __name__ == '__main__':
+
+    reg = registry()
+
+    reg.help(component_name='demo_demo_py')
+
