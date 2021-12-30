@@ -1,0 +1,9 @@
+name: demo_py
+description: Demo and test the Python component functionality.
+language: Python
+package: im3components.demo.py_demo
+method: py_demo
+from_models:
+to_models:
+tags:
+  - demo

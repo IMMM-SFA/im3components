@@ -1,0 +1,10 @@
+name: gcam_to_cerf_expansion
+description: Convert GCAM outputs to cerf inputs for the expansion plan.
+language: Python
+package: im3components.gcam_cerf_expansion_plan
+method: gcam_cerf_expansion
+from_models:
+  - GCAM
+to_models:
+  - CERF
+tags:

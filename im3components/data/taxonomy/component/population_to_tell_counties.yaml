@@ -1,0 +1,11 @@
+name: population_to_tell_counties
+description: Aggregate (sum) gridded population data to counties.
+language: Python
+package: im3components.pop_tell_counties
+method: population_to_tell_counties
+from_models:
+  - Population
+to_models:
+  - Tell
+tags:
+  - county
