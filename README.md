@@ -6,6 +6,16 @@ IM3 components provide coupling between the inputs and outputs of IM3 models in 
 ## Overview
 This repository will hold code that has been built to facilitate interoperability between IM3 modeling software for each experiement.  Currently, code can be provided in either Python or R as a part of each package in this repository.
 
+## Installation
+Install locally from the repository root by running:
+
+```bash
+pip install -r requirements.txt
+pip install -e .
+```
+
+In order to use the R functionality, you may also need to follow the additional installation instructions [here](https://github.com/park-brian/r-functions).
+
 ## Current components
 Each component should follow this naming convention in all lower case separated by an underscore:
 
