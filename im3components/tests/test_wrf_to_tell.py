@@ -19,7 +19,7 @@ class TestWrfTell(unittest.TestCase):
         """Ensure that historical counties to BAs aggregation produces the same result."""
 
         registry = cmp.registry()
-        wrf_to_tell_balancing_authorities = registry.get_function(self.BA_COMPONENT_NAME)
+        wrf_to_tell_balancing_authorities = registry.get_component(self.BA_COMPONENT_NAME)
 
         # remove output file if it exists
         try:
@@ -61,7 +61,7 @@ class TestWrfTell(unittest.TestCase):
         """Ensure that historical counties to BAs aggregation produces the same result."""
 
         registry = cmp.registry()
-        wrf_to_tell_balancing_authorities = registry.get_function(self.BA_COMPONENT_NAME)
+        wrf_to_tell_balancing_authorities = registry.get_component(self.BA_COMPONENT_NAME)
 
         # remove output file if it exists
         try:
@@ -103,7 +103,7 @@ class TestWrfTell(unittest.TestCase):
         """Ensure that a single time slice and county produces the same result."""
 
         registry = cmp.registry()
-        wrf_to_tell_counties = registry.get_function(self.COUNTY_COMPONENT_NAME)
+        wrf_to_tell_counties = registry.get_component(self.COUNTY_COMPONENT_NAME)
 
         # remove weights file if it exists
         try:

@@ -149,7 +149,7 @@ class TestPopTellCounties(unittest.TestCase):
         self.assertTrue(TestPopTellCounties.COMPONENT_NAME in registry_asset)
 
         # check asset function
-        my_asset_function = reg.get_function(TestPopTellCounties.COMPONENT_NAME)
+        my_asset_function = reg.get_component(TestPopTellCounties.COMPONENT_NAME)
 
         df = my_asset_function(raster_list=[TestPopTellCounties.RASTER_FILE],
                                county_shapefile=TestPopTellCounties.COUNTY_SHAPEFILE,
