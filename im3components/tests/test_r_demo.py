@@ -11,7 +11,7 @@ class TestRDemo(unittest.TestCase):
         reg = cmp.registry()
 
         # get R demo function that returns the sum of two squares
-        fx = reg.get_component('demo_demo_r')
+        fx = reg.get_component('demo_r')
 
         result = fx(2, 4)
         self.assertEqual(20, result)

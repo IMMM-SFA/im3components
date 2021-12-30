@@ -1,0 +1,11 @@
+name: wrf_to_tell_counties
+description: Convert gridded WRF data to mean county data.
+language: Python
+package: im3components.wrf_to_tell.wrf_tell_counties
+method: wrf_to_tell_counties
+from_models:
+  - WRF
+to_models:
+  - Tell
+tags:
+  - county

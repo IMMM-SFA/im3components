@@ -10,7 +10,7 @@ class TestWrfTell(unittest.TestCase):
     """Tests for the WRF to TELL county mean aggregations"""
 
     COUNTY_COMPONENT_NAME = 'wrf_to_tell_counties'
-    BA_COMPONENT_NAME = 'wrf_to_tell_balancing_authorities'
+    BA_COMPONENT_NAME = 'tell_mean_county_to_balancing_authority'
 
     def setUp(self):
         self.data_path = f'{os.path.dirname(os.path.abspath(__file__))}/data/wrf_to_tell'

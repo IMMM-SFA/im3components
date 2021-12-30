@@ -1,0 +1,9 @@
+name: demo_r
+description: Demo and test the R component functionality.
+language: R
+package: im3components.demo.r_demo
+method: r_demo
+from_models:
+to_models:
+tags:
+  - demo

@@ -1,17 +1,45 @@
-import pkg_resources
-from typing import List
-from dataclasses import dataclass
-
+from dataclasses import dataclass, field
+from enum import Enum
 import importlib
+import pkg_resources
 import r_functions as rfn
+from typing import List
+from yaml import load
+try:
+    from yaml import CLoader as Loader
+except ImportError:
+    from yaml import Loader
 
-from im3components.components import Component, get_components
+from im3components.taxonomy import Component
+
+
+class AssetType(Enum):
+    Experiment = 'Experiment'
+    Model = 'Model'
+    Component = 'Component'
+    DataSet = 'DataSet'
+
+
+def load_from_yaml(asset_type: AssetType):
+    base_path = f'data/taxonomy/{asset_type.value.casefold()}'
+    assets = []
+    if asset_type:
+        resources = pkg_resources.resource_listdir('im3components', base_path)
+        for resource in resources:
+            resource_string = pkg_resources.resource_string('im3components', f'{base_path}/{resource}')
+            assets.append(
+                load(
+                    f"!!python/object:im3components.taxonomy.{asset_type.value}\n{resource_string.decode('utf-8')}",
+                    Loader=Loader
+                )
+            )
+    return assets
 
 
 @dataclass
 class Registry:
 
-    components: List[Component]
+    components: List[Component] = field(default_factory=lambda: load_from_yaml(AssetType.Component))
 
     def list_related(self, asset: str) -> list:
         """List all components that are related to the target asset.
@@ -21,9 +49,7 @@ class Registry:
 
         """
 
-        asset_lwr = asset.casefold()
-
-        return [i.name for i in self.components if asset_lwr == i.parent.casefold() or asset_lwr == i.child.casefold()]
+        return [c.name for c in self.components if c.is_related(asset)]
 
     def list_registry(self) -> list:
         """Return a list of all registered components."""
@@ -84,8 +110,4 @@ class Registry:
 
 
 def registry():
-    """Instantiate registry class."""
-
-    component_list = get_components()
-
-    return Registry(component_list)
+    return Registry()

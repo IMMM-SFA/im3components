@@ -1,7 +1,7 @@
 name: CLM
 long name: Community Land Model
 description: Simulates the physical, chemical, and biological processes by which terrestrial ecosystems affect and are affected by climate across a variety of spatial and temporal scales
-url: https://www.cesm.ucar.edu/models/clm/
+url: https://www.cesm.ucar.edu/model/clm/
 language: fortran
 parameters:
 inputs:
