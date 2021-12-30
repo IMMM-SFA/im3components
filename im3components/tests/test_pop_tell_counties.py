@@ -10,7 +10,7 @@ import im3components.pop_tell_counties as pop
 class TestPopTellCounties(unittest.TestCase):
 
     COMPONENT_NAME = 'population_tell_counties'
-    COUNTY_SHAPEFILE = pkg_resources.resource_filename('im3components', 'tests/wrf_tell_data/test_counties.shp')
+    COUNTY_SHAPEFILE = pkg_resources.resource_filename('im3components', 'tests/data/wrf_to_tell/test_counties.shp')
     RASTER_FILE = pkg_resources.resource_filename('im3components', 'tests/data/test_population.tif')
     WEIGHTS_FILE_VALID = pkg_resources.resource_filename('im3components', 'tests/data/test_population_weights_valid.csv')
     WEIGHTS_FILE_INVALID_A = pkg_resources.resource_filename('im3components', 'tests/data/test_population_weights_invalid_a.csv')
@@ -149,7 +149,7 @@ class TestPopTellCounties(unittest.TestCase):
         self.assertTrue(TestPopTellCounties.COMPONENT_NAME in registry_asset)
 
         # check asset function
-        my_asset_function = reg.get_function(TestPopTellCounties.COMPONENT_NAME)
+        my_asset_function = reg.get_component(TestPopTellCounties.COMPONENT_NAME)
 
         df = my_asset_function(raster_list=[TestPopTellCounties.RASTER_FILE],
                                county_shapefile=TestPopTellCounties.COUNTY_SHAPEFILE,
