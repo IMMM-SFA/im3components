@@ -9,17 +9,17 @@ import im3components as cmp
 class TestWrfTell(unittest.TestCase):
     """Tests for the WRF to TELL county mean aggregations"""
 
-    COUNTY_COMPONENT_NAME = 'wrf_tell_counties'
-    BA_COMPONENT_NAME = 'wrf_tell_balancing_authorities'
+    COUNTY_COMPONENT_NAME = 'wrf_to_tell_counties'
+    BA_COMPONENT_NAME = 'wrf_to_tell_balancing_authorities'
 
     def setUp(self):
-        self.data_path = f'{os.path.dirname(os.path.abspath(__file__))}/wrf_tell_data'
+        self.data_path = f'{os.path.dirname(os.path.abspath(__file__))}/data/wrf_to_tell'
 
     def test_historical_balancing_authority_aggregation(self):
         """Ensure that historical counties to BAs aggregation produces the same result."""
 
         registry = cmp.registry()
-        wrf_to_tell_balancing_authorities = registry.get_function(self.BA_COMPONENT_NAME)
+        wrf_to_tell_balancing_authorities = registry.get_component(self.BA_COMPONENT_NAME)
 
         # remove output file if it exists
         try:
@@ -61,7 +61,7 @@ class TestWrfTell(unittest.TestCase):
         """Ensure that historical counties to BAs aggregation produces the same result."""
 
         registry = cmp.registry()
-        wrf_to_tell_balancing_authorities = registry.get_function(self.BA_COMPONENT_NAME)
+        wrf_to_tell_balancing_authorities = registry.get_component(self.BA_COMPONENT_NAME)
 
         # remove output file if it exists
         try:
@@ -103,7 +103,7 @@ class TestWrfTell(unittest.TestCase):
         """Ensure that a single time slice and county produces the same result."""
 
         registry = cmp.registry()
-        wrf_to_tell_counties = registry.get_function(self.COUNTY_COMPONENT_NAME)
+        wrf_to_tell_counties = registry.get_component(self.COUNTY_COMPONENT_NAME)
 
         # remove weights file if it exists
         try:

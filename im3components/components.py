@@ -40,21 +40,29 @@ def get_components():
                   package='im3components.pop_tell_counties',
                   method='population_to_tell_counties'),
 
-        Component(name='wrf_tell_counties',
+        Component(name='wrf_to_tell_counties',
                   parent='WRF',
                   child='TELL',
                   description='Convert gridded WRF data to mean county data.',
                   language='Python',
-                  package='im3components.wrf_tell.wrf_tell_counties',
+                  package='im3components.wrf_to_tell.wrf_tell_counties',
                   method='wrf_to_tell_counties'),
 
-        Component(name='wrf_tell_balancing_authorities',
+        Component(name='wrf_to_tell_balancing_authorities',
                   parent='WRF',
                   child='TELL',
                   description='Convert mean county data to mean balancing authority data.',
                   language='Python',
-                  package='im3components.wrf_tell.wrf_tell_balancing_authorities',
+                  package='im3components.wrf_to_tell.wrf_tell_balancing_authorities',
                   method='wrf_to_tell_balancing_authorities'),
+
+        Component(name='gcam_cerf_expansion',
+                  parent='GCAM',
+                  child='CERF',
+                  description='Convert GCAM outputs to cerf inputs for the expansion plan.',
+                  language='Python',
+                  package='im3components.gcam_cerf_expansion_plan',
+                  method='gcam_cerf_expansion'),
 
     ]
 

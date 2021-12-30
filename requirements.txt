@@ -1,3 +1,4 @@
+dask[complete]>=2021.3.0
 descartes>=1.1.0
 geopandas>=0.9.0
 joblib>=1.0.1
@@ -9,6 +10,7 @@ pyproj>=3.0.1
 Rtree>=0.9.7
 salem>=0.3.5
 scipy>=1.5.4
+setuptools>=54.1.1
 Shapely>=1.7.1
 xarray>=0.16.2
 swifter>=1.0.9

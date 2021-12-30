@@ -21,7 +21,7 @@ class TestGcamCerfExpansionPlan(unittest.TestCase):
 
         # get result
         registry = im3c.registry()
-        method = registry.get_function(registry.list_related('gcam')[0])
+        method = registry.get_component(registry.list_related('gcam')[0])
         result = method(0, 0)
 
         # function should return 0
