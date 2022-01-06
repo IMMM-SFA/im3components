@@ -13,57 +13,25 @@ To update a diagram:
 ## Current Diagrams
 
 ### Experiment A N1 CONUS
-<div>
-  <a href='Experiment_A-N1_CONUS/experiment-A-N1_conus.png' download>
-    <img src='Experiment_A-N1_CONUS/experiment-A-N1_conus.png' width=720 />
-  </a>
-</div>
+<img src='Experiment_A-N1_CONUS/experiment-A-N1_conus.png?raw=true' width=720 />
 
 ### Experiment A N2 Urban
-<div>
-  <a href='Experiment_A-N2_Urban/experiment-A-N2_urban.png' download>
-    <img src='Experiment_A-N2_Urban/experiment-A-N2_urban.png' width=720 />
-  </a>
-</div>
+<img src='Experiment_A-N2_Urban/experiment-A-N2_urban.png?raw=true' width=720 />
 
 ### Experiment A N3 Interconnect
-<div>
-  <a href='Experiment_A-N3_Interconnect/experiment-A-N3_interconnect.png' download>
-    <img src='Experiment_A-N3_Interconnect/experiment-A-N3_interconnect.png' width=720 />
-  </a>
-</div>
+<img src='Experiment_A-N3_Interconnect/experiment-A-N3_interconnect.png?raw=true' width=720 />
 
 ### Experiment C N4 CONUS
-<div>
-  <a href='Experiment_C-N4_CONUS/experiment-C-N4_conus.png' download>
-    <img src='Experiment_C-N4_CONUS/experiment-C-N4_conus.png' width=720 />
-  </a>
-</div>
+<img src='Experiment_C-N4_CONUS/experiment-C-N4_conus.png?raw=true' width=720 />
 
 ### Experiment C N5 Subdomain
-<div>
-  <a href='Experiment_C-N5_Subdomain/experiment-C-N5_subdomain.png' download>
-    <img src='Experiment_C-N5_Subdomain/experiment-C-N5_subdomain.png' width=720 />
-  </a>
-</div>
+<img src='Experiment_C-N5_Subdomain/experiment-C-N5_subdomain.png?raw=true' width=720 />
 
 ### Experiment B N6 Interconnect
-<div>
-  <a href='Experiment_B-N6_Interconnect/experiment-B-N6_interconnect.png' download>
-    <img src='Experiment_B-N6_Interconnect/experiment-B-N6_interconnect.png' width=720 />
-  </a>
-</div>
+<img src='Experiment_B-N6_Interconnect/experiment-B-N6_interconnect.png?raw=true' width=720 />
 
 ### Experiment D N7 CONUS
-<div>
-  <a href='Experiment_D-N7_CONUS/experiment-D-N7_conus.png' download>
-    <img src='Experiment_D-N7_CONUS/experiment-D-N7_conus.png' width=720 />
-  </a>
-</div>
+<img src='Experiment_D-N7_CONUS/experiment-D-N7_conus.png?raw=true' width=720 />
 
 ### Experiment D N8 Subdomain
-<div>
-  <a href='Experiment_D-N8_Subdomain/experiment-D-N8_subdomain.png' download>
-    <img src='Experiment_D-N8_Subdomain/experiment-D-N8_subdomain.png' width=720 />
-  </a>
-</div>
+<img src='Experiment_D-N8_Subdomain/experiment-D-N8_subdomain.png?raw=true' width=720 />
