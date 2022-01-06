@@ -3,7 +3,7 @@
 Diagrams representing each experiment in the IM3 project.
 
 To update a diagram:
-* If you feel uncomfortable interacting with git, [open an issue](https://github.com/IMMM-SFA/im3components/issues) and a DSC team member will help you through the process.
+* If you feel uncomfortable interacting with git, [open an issue](https://github.com/IMMM-SFA/im3components/issues/new?assignees=thurber&labels=documentation&template=update-experiment-diagram.md&title=Update+Experiment+Diagram) and a DSC team member will help you through the process.
 * Otherwise:
     * Create a new branch from `develop`.
     * Make your updates in that branch.
