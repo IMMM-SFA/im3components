@@ -366,6 +366,14 @@ resample_wrf_to_df <- function(ncdf_path = NULL,
   ncdf_lon <- raster::raster(ncdf_path, varname="XLONG",ncdf=TRUE) # Get Lat
   ncdf_lat <- raster::raster(ncdf_path, varname="XLAT",ncdf=TRUE) # Get Lon
   ncdf_time <-  ncdf4::ncvar_get(nc,"Times")
+  # Add in missing times if any
+  blank_name_indices = which(ncdf_time == "")
+  if(length(blank_name_indices)>0){
+  for(i in blank_name_indices){
+    ncdf_time_i_less_1 <- ncdf_time[i-1]
+    ncdf_time[i] <- gsub(" ","_",as.character(strptime(ncdf_time_i_less_1, format="%Y-%m-%d_%H:%M:%S")+1*60*60*1))
+  }
+  }
 
   # Check if params are in available variables
   if(!any(params %in% attributes(nc$var)$names)){
@@ -418,7 +426,7 @@ resample_wrf_to_df <- function(ncdf_path = NULL,
       }
     }
 
-    if(grepl("data.frame|tbl|tbl_df",class(target_grid))){
+    if(any(grepl("data.frame|tbl|tbl_df",class(target_grid)))){
       target_grid_x <- target_grid
     }
 

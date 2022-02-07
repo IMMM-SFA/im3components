@@ -9,6 +9,7 @@ xanthos_npy_expand(
   base_year_month_start = NULL,
   target_npy = NULL,
   target_year_month_start = NULL,
+  end_year = NULL,
   out_dir = NULL
 )
 }
@@ -20,6 +21,8 @@ xanthos_npy_expand(
 \item{target_npy}{Default = NULL. Target .npy file to expand to.}
 
 \item{target_year_month_start}{Default = NULL}
+
+\item{end_year}{Default = NUll. Last year to process data till. If NULL will use last complete year.}
 
 \item{out_dir}{Default = NULL. Path to folder to save outputs in.}
 }
