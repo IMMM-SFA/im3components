@@ -7,7 +7,7 @@ To update a diagram:
 * Otherwise:
     * Create a new branch from `develop`.
     * Make your updates in that branch.
-    * Include an updated static image (or a DSC team member can add it to your pull request).
+    * Include an updated static image in the experiment folder, overwriting the existing `.png` file (or a DSC team member can add it to your pull request) -- the new image will automatically show up in the README.
     * Open a pull request with your updated files.
 
 ## Current Diagrams
@@ -18,9 +18,6 @@ To update a diagram:
 ### Experiment A N2 Urban
 <img src='Experiment_A-N2_Urban/experiment-A-N2_urban.png?raw=true' width=720 />
 
-### Experiment A N3 Interconnect
-<img src='Experiment_A-N3_Interconnect/experiment-A-N3_interconnect.png?raw=true' width=720 />
-
 ### Experiment C N4 CONUS
 <img src='Experiment_C-N4_CONUS/experiment-C-N4_conus.png?raw=true' width=720 />
 
@@ -29,9 +26,3 @@ To update a diagram:
 
 ### Experiment B N6 Interconnect
 <img src='Experiment_B-N6_Interconnect/experiment-B-N6_interconnect.png?raw=true' width=720 />
-
-### Experiment D N7 CONUS
-<img src='Experiment_D-N7_CONUS/experiment-D-N7_conus.png?raw=true' width=720 />
-
-### Experiment D N8 Subdomain
-<img src='Experiment_D-N8_Subdomain/experiment-D-N8_subdomain.png?raw=true' width=720 />
