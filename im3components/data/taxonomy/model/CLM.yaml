@@ -1,0 +1,150 @@
+name: CLM
+long name: Community Land Model
+description: Simulates the physical, chemical, and biological processes by which terrestrial ecosystems affect and are affected by climate across a variety of spatial and temporal scales
+url: https://www.cesm.ucar.edu/model/clm/
+language: fortran
+parameters:
+inputs:
+  - name: surface pressure
+    description: Surface pressure at the lowest atmosphere level
+    variable: PSRF
+    unit: Pa
+    type: netcdf
+    resolution:
+      spatial:
+        unit: degree
+        crs: WGS84
+        epsg: 4326
+        srs:
+        x: 0.125
+        y: 0.125
+      temporal:
+        unit: hour
+        interval: 3
+  - name: specific humidity
+    description: Specific humidity at the lowest atmosphere level
+    variable: QBOT
+    unit: kg/kg
+    type: netcdf
+    resolution:
+      spatial:
+        unit: degree
+        crs: WGS84
+        epsg: 4326
+        srs:
+        x: 0.125
+        y: 0.125
+      temporal:
+        unit: hour
+        interval: 3
+  - name: temperature
+    description: Temperature at the lowest atmosphere level
+    variable: TBOT
+    unit: K
+    type: netcdf
+    resolution:
+      spatial:
+        unit: degree
+        crs: WGS84
+        epsg: 4326
+        srs:
+        x: 0.125
+        y: 0.125
+      temporal:
+        unit: hour
+        interval: 3
+  - name: wind speed
+    description: Wind speed at the lowest atmosphere level
+    variable: WIND
+    unit: m/s
+    type: netcdf
+    resolution:
+      spatial:
+        unit: degree
+        crs: WGS84
+        epsg: 4326
+        srs:
+        x: 0.125
+        y: 0.125
+      temporal:
+        unit: hour
+        interval: 3
+  - name: precipitation
+    description: Accumulated total grid scale precipitation
+    variable: PRECTmms
+    unit: mm/s
+    type: netcdf
+    resolution:
+      spatial:
+        unit: degree
+        crs: WGS84
+        epsg: 4326
+        srs:
+        x: 0.125
+        y: 0.125
+      temporal:
+        unit: hour
+        interval: 3
+  - name: longwave radiation
+    description: Incident longwave radiation
+    variable: FLDS
+    unit: W/m2
+    type: netcdf
+    resolution:
+      spatial:
+        unit: degree
+        crs: WGS84
+        epsg: 4326
+        srs:
+        x: 0.125
+        y: 0.125
+      temporal:
+        unit: hour
+        interval: 3
+  - name: solar radiation
+    description: Total incident solar radiation
+    variable: FSDS
+    unit: W/m2
+    type: netcdf
+    resolution:
+      spatial:
+        unit: degree
+        crs: WGS84
+        epsg: 4326
+        srs:
+        x: 0.125
+        y: 0.125
+      temporal:
+        unit: hour
+        interval: 3
+outputs:
+  - name: surface runoff
+    description: flux of local surface runoff
+    unit: mm/s
+    type: netcdf
+    resolution:
+      spatial:
+        unit: degree
+        crs: WGS84
+        epsg: 4326
+        srs:
+        x: 0.125
+        y: 0.125
+      temporal:
+        unit: hour
+        interval: 3
+  - name: subsurface runoff
+    description: flux of local subsurface runoff
+    unit: mm/s
+    type: netcdf
+    resolution:
+      spatial:
+        unit: degree
+        crs: WGS84
+        epsg: 4326
+        srs:
+        x: 0.125
+        y: 0.125
+      temporal:
+        unit: hour
+        interval: 3

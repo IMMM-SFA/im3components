@@ -1,0 +1,133 @@
+name: mosartwmpy
+long name: Model for Scale Adaptive River Transport and Water Management in Python
+description: Simulate water routing and reservoir operations using runoff and water demand
+url: https://github.com/IMMM-SFA/mosartwmpy
+language: python
+parameters:
+  - name: channel parameters
+    description: geometric, physical, and flow direction parameters for river and tributary channels
+    sources:
+      - name: HydroSHEDS
+        description:
+        url:
+    resolution:
+      spatial:
+        unit: degree
+        crs: WGS84
+        epsg: 4326
+        x: 0.125
+        y: 0.125
+  - name: dam and reservoir parameters
+    description: geometric, physical, and historical behavior parameters for dams and reservoirs
+    sources:
+      - name: GRanD
+        description:
+        url:
+      - name: ISTARF
+        description:
+        url:
+    resolution:
+      spatial:
+        unit: dam
+inputs:
+  - name: surface runoff
+    description: flux of local surface runoff
+    unit: mm/s
+    type: netcdf
+    resolution:
+      spatial:
+        unit: degree
+        crs: WGS84
+        epsg: 4326
+        x: 0.125
+        y: 0.125
+      temporal:
+        unit: hour
+        interval: 3
+  - name: subsurface runoff
+    description: flux of local subsurface runoff
+    unit: mm/s
+    type: netcdf
+    resolution:
+      spatial:
+        unit: degree
+        crs: WGS84
+        epsg: 4326
+        x: 0.125
+        y: 0.125
+      temporal:
+        unit: hour
+        interval: 3
+  - name: water demand
+    descriptioin: flux of local water volume demanded for use by municipalities and industries
+    unit: m3/s
+    type: netcdf
+    resolution:
+      spatial:
+        unit: degree
+        crs: WGS84
+        epsg: 4326
+        x: 0.125
+        y: 0.125
+      temporal:
+        unit: month
+        interval: 1
+outputs:
+  - name: water volume
+    description: local water volume
+    unit: m3
+    type: netcdf
+    resolution:
+      spatial:
+        unit: degree
+        crs: WGS84
+        epsg: 4326
+        x: 0.125
+        y: 0.125
+      temporal:
+        unit: day
+        interval: 1
+  - name: water deficit
+    description: local unmet water demand
+    unit: m3
+    type: netcdf
+    resolution:
+      spatial:
+        unit: degree
+        crs: WGS84
+        epsg: 4326
+        x: 0.125
+        y: 0.125
+      temporal:
+        unit: day
+        interval: 1
+  - name: reservoir water storage
+    description: water volume stored in the reservoir associated with the local dam
+    unit: m3
+    type: netcdf
+    resolution:
+      spatial:
+        unit: degree
+        crs: WGS84
+        epsg: 4326
+        x: 0.125
+        y: 0.125
+      temporal:
+        unit: day
+        interval: 1
+  - name: dam release
+    description: flux of water volume released by the local dam
+    unit: m3/s
+    type: netcdf
+    resolution:
+      spatial:
+        unit: degree
+        crs: WGS84
+        epsg: 4326
+        x: 0.125
+        y: 0.125
+      temporal:
+        unit: day
+        interval: 1
+
+    

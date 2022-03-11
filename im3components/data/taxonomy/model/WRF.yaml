@@ -1,0 +1,120 @@
+name: WRF
+long name: Weather Research and Forecasting Model
+description: A next-generation mesoscale numerical weather prediction system designed for both atmospheric research and operational forecasting applications
+url: https://www.mmm.ucar.edu/weather-research-and-forecasting-model
+language: fortran
+parameters:
+inputs:
+outputs:
+  - name: surface pressure
+    description: Surface pressure
+    variable: PFSC
+    unit: Pa
+    type: netcdf
+    resolution:
+      spatial:
+        unit: meter
+        crs: Lambert Conformal Conic
+        epsg:
+        srs: +proj=lcc +lat_0=40.0000076293945 +lon_0=-97 +lat_1=30 +lat_2=45 +x_0=0 +y_0=0 +R=6370000 +units=m +no_defs
+        x: 12000
+        y: 12000
+      temporal:
+        unit: hour
+        interval: 1
+  - name: specific humidity
+    description: Specific humidity at 2 meters
+    variable: Q2
+    unit: kg/kg
+    type: netcdf
+    resolution:
+      spatial:
+        unit: meter
+        crs: Lambert Conformal Conic
+        epsg:
+        srs: +proj=lcc +lat_0=40.0000076293945 +lon_0=-97 +lat_1=30 +lat_2=45 +x_0=0 +y_0=0 +R=6370000 +units=m +no_defs
+        x: 12000
+        y: 12000
+      temporal:
+        unit: hour
+        interval: 1
+  - name: temperature
+    description: Temperature at 2 meters
+    variable: T2
+    unit: K
+    type: netcdf
+    resolution:
+      spatial:
+        unit: meter
+        crs: Lambert Conformal Conic
+        epsg:
+        srs: +proj=lcc +lat_0=40.0000076293945 +lon_0=-97 +lat_1=30 +lat_2=45 +x_0=0 +y_0=0 +R=6370000 +units=m +no_defs
+        x: 12000
+        y: 12000
+      temporal:
+        unit: hour
+        interval: 1
+  - name: wind velocity
+    description: Speed and direction of wind at 10 meters
+    variable: U10, V10
+    unit: m/s
+    type: netcdf
+    resolution:
+      spatial:
+        unit: meter
+        crs: Lambert Conformal Conic
+        epsg:
+        srs: +proj=lcc +lat_0=40.0000076293945 +lon_0=-97 +lat_1=30 +lat_2=45 +x_0=0 +y_0=0 +R=6370000 +units=m +no_defs
+        x: 12000
+        y: 12000
+      temporal:
+        unit: hour
+        interval: 1
+  - name: precipitation
+    description: Accumulated total grid scale precipitation
+    variable: RAINNC
+    unit: mm
+    type: netcdf
+    resolution:
+      spatial:
+        unit: meter
+        crs: Lambert Conformal Conic
+        epsg:
+        srs: +proj=lcc +lat_0=40.0000076293945 +lon_0=-97 +lat_1=30 +lat_2=45 +x_0=0 +y_0=0 +R=6370000 +units=m +no_defs
+        x: 12000
+        y: 12000
+      temporal:
+        unit: hour
+        interval: 1
+  - name: longwave radiation
+    description: Downward long wave flux at surface
+    variable: GLW
+    unit: W/m2
+    type: netcdf
+    resolution:
+      spatial:
+        unit: meter
+        crs: Lambert Conformal Conic
+        epsg:
+        srs: +proj=lcc +lat_0=40.0000076293945 +lon_0=-97 +lat_1=30 +lat_2=45 +x_0=0 +y_0=0 +R=6370000 +units=m +no_defs
+        x: 12000
+        y: 12000
+      temporal:
+        unit: hour
+        interval: 1
+  - name: shortwave radiation
+    description: Downward short wave flux at surface
+    variable: SWDOWN
+    unit: W/m2
+    type: netcdf
+    resolution:
+      spatial:
+        unit: meter
+        crs: Lambert Conformal Conic
+        epsg:
+        srs: +proj=lcc +lat_0=40.0000076293945 +lon_0=-97 +lat_1=30 +lat_2=45 +x_0=0 +y_0=0 +R=6370000 +units=m +no_defs
+        x: 12000
+        y: 12000
+      temporal:
+        unit: hour
+        interval: 1
