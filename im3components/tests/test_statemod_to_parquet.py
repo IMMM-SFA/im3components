@@ -14,6 +14,7 @@ import tempfile
 import unittest
 import warnings
 
+import pandas as pd
 from im3components.statemod_to_parquet.statemod_data_extraction import StateModDataExtractor
 
 
@@ -32,6 +33,9 @@ class TestStatemodDataExtraction(unittest.TestCase):
                 raise AssertionError("Failed to create parquet file for structure_id 5104601.")
             if not Path(f"{tmp_dir}/5102068.parquet").resolve().is_file():
                 raise AssertionError("Failed to create parquet file for structure_id 5102068.")
+            data = pd.read_parquet(f"{tmp_dir}/5104601.parquet")
+            # check that large values are captured
+            self.assertEqual(data[data['month'] == 'JUN']['demand'].values[0], 1007543)
 
     def test_bad_file(self):
         with tempfile.TemporaryDirectory() as tmp_dir:
