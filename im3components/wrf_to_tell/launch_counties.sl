@@ -22,3 +22,12 @@ srun parallel --jobs 4 'python wrf_tell_counties.py \
     --output-directory ./County_Output_Files \
     --output-filename-suffix _County_Mean_Meteorology \
 ' ::: ./Raw_Data/wrfout*
+
+# create empty county files for and report any missing data
+# check the 'missing_data.txt' file in the output directory for a record of the missing timestamps
+srun 'python wrf_tell_fill_missing_hours.py \
+    --start 2019-01-01 \
+    --end 2019-12-31 \
+    --output-directory ./County_Output_Files \
+    --output-filename-suffix _County_Mean_Meteorology \
+'

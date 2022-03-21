@@ -13,11 +13,13 @@ This page contains instructions for running the sequence of processing scripts t
   * Set the “--job-name” flag to something consistent with the period being processed.
   * Set the “--mail-user” flag to your email address.
   * The “--p” queue flag is set to **regular** by default. If you want to do a quick run to make sure the script is working properly you can set this to **debug** and drop the runtime down to something small (e.g., 5-10 minutes). This will run the script using NERSC's debug queue which is much faster and enables a quick run-break-fix cycle. Note that there is a hard 30-minute runtime limit on the debug queue.
-  * Set the paths in the srun section:
+  * Set the paths in the first srun section:
     * “--shapefile-path” should point to the *tl_2020_us_county.shp* shapefile
     * “--weights-file-path” should point to the *grid_cell_to_county_weight.parquet* file
     * “--output_directory” should point to where you want to store the output files (see the table below)
-    * The final line of the slurm script should point to the directory where the raw WRF files are stored (see the table below)
+    * The final line of the first srun section should point to the directory where the raw WRF files are stored (see the table below)
+  * Ensure the paths in the second srun section match the paths in the first section
+  * Set the start and end date in the second srun section to the dates you expect; this script will check for any missing hourly data and fill in with NaNs so that the yearly time series doesn't have any gaps
   * After these changes, the *launch_counties.sl* script should look something like this:
 
 ![Launch Counties](images/launch_counties_completed.png)

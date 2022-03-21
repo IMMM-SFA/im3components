@@ -11,6 +11,7 @@
 
 # Import all of the required libraries and packages:
 import argparse
+from calendar import isleap
 import distutils.util
 import glob
 import numpy as np
@@ -94,7 +95,7 @@ def wrf_to_tell_balancing_authorities(
         population_df = pd.read_csv(
             county_population_by_year_file,
             index_col=None,
-            header=0
+            header=0,
         ).rename(columns={
             'FIPS': 'County_FIPS',
         }).drop(columns=['state_name']).set_index('County_FIPS').T
@@ -151,11 +152,22 @@ def wrf_to_tell_balancing_authorities(
         key: precisions[i] for i, key in enumerate(variables)
     }).reset_index()
 
+    # hours in year for checking output length
+    hours_in_year = 8784 if isleap(year) else 8760
+    missing_data = []
+
     # for each ba, write the output file
     for ba_number, group in means.groupby('BA_Number'):
         ba_name = ba_mapping_df[ba_mapping_df.BA_Number == ba_number]['BA_Code'].iloc[0]
-        output_file = f'{output_directory}/{ba_name}_{output_file_infix}_{year}.csv'
-        group[['Time_UTC'] + variables].to_csv(output_file, sep=',', index=False)
+        output_file_name = f'{ba_name}_{output_file_infix}_{year}.csv'
+        # make sure there are 8760 hourly entries for the year (or 8784 for leap year)
+        if len(group['Time_UTC']) != hours_in_year:
+            print(f'Missing hourly data for {ba_name} in year {year}.')
+            missing_data.append(output_file_name)
+        group[['Time_UTC'] + variables].to_csv(f'{output_directory}/{output_file_name}', sep=',', index=False)
+
+    # write a file summarizing the missing data
+    pd.Series(missing_data).to_csv(f'{output_directory}/missing_data_summary.txt', header=['Missing Hourly Data'], index=False)
 
     print('Elapsed time = ', datetime.datetime.now() - begin_time)
 
