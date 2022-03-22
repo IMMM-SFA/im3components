@@ -12,7 +12,7 @@
 
 module load parallel
 
-srun parallel --jobs 1 "python wrf_tell_balancing_authorities.py \
+srun parallel --retries 3 --jobs 1 "python wrf_tell_balancing_authorities.py \
     --is-historical false \
     --variables T2 Q2 U10 V10 SWDOWN GLW \
     --precisions 2 5 2 2 2 2 \

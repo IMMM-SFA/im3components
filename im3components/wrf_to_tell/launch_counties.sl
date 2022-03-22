@@ -13,7 +13,7 @@
 module load parallel
 export HDF5_USE_FILE_LOCKING=FALSE
 
-srun parallel --jobs 4 'python wrf_tell_counties.py \
+srun parallel --retries 3 --jobs 4 'python wrf_tell_counties.py \
     --number-of-tasks 8 \
     --variables T2 Q2 U10 V10 SWDOWN GLW \
     --precisions 2 5 2 2 2 2 \
@@ -25,9 +25,8 @@ srun parallel --jobs 4 'python wrf_tell_counties.py \
 
 # create empty county files for and report any missing data
 # check the 'missing_data.txt' file in the output directory for a record of the missing timestamps
-srun 'python wrf_tell_fill_missing_hours.py \
+srun python wrf_tell_fill_missing_hours.py \
     --start 2019-01-01 \
     --end 2019-12-31 \
     --output-directory ./County_Output_Files \
-    --output-filename-suffix _County_Mean_Meteorology \
-'
+    --output-filename-suffix _County_Mean_Meteorology
