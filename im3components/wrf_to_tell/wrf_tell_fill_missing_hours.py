@@ -1,4 +1,6 @@
 import argparse
+import os
+
 from datetime import datetime, timedelta
 from glob import glob
 
@@ -55,7 +57,8 @@ def fill_missing_hours(
         data.to_csv(f'{output_directory}/{dt.strftime("%Y_%m_%d_%H_UTC")}{output_filename_suffix}.csv')
 
     # write a file summarizing the missing data
-    pd.Series(missing.format()).to_csv(f'{output_directory}/missing_data_summary.txt', header=['Missing Data'], index=False)
+    output_filename = os.path.join(output_directory, 'missing_data_' + start + '_to_' + end + '.txt')
+    pd.Series(missing.format()).to_csv(output_filename, header=['Missing Data'], index=False)
 
 
 if __name__ == '__main__':

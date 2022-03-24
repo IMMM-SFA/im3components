@@ -3,9 +3,9 @@
 This page contains instructions for running the sequence of processing scripts that convert the meteorology from IM3's climate simulations using the Weather Research and Forecasting (WRF) model into input files ready for use in the Total ELectricity Load (TELL) model. The first step in the processing chain, *wrf_tell_counties.py*, spatially averages the gridded meteorology output from WRF into county-mean values. The output of that processing step is a series of .csv files (one for every hour processed) with the county-mean value of six meteorological variables: T2, Q2, U10, V10, SWDOWN, and GLW. The second step, *wrf_tell_balancing_authorities.py*, then takes these county-level hourly values and population-weights them into an annual time-series for each of the balancing authorities used in the TELL model. As the WRF data is currently stored on NERSC this processing chain is currently configured to work on that platform. For each step in the processing chain there is an associated slurm script that will launch the processing step on NERSC.
 
 ## To run the wrf_tell_counties.py step:
-1. Download and unzip the ancillary population and geolocation data needed to process the data: [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.5784542.svg)](https://doi.org/10.5281/zenodo.5784542).
+1. Download and unzip the ancillary population and geolocation data needed to process the data: [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.6377756.svg)](https://doi.org/10.5281/zenodo.6377756)
 
-2. Download the python scripts by making a local clone of the wrf_tell_ba branch of the im3components repository.
+2. Download the python scripts by making a local clone of the `develop` branch of the im3components repository.
 
 3. Find the *launch_counties.sl* slurm script, open it in your favorite text editor, and make the following changes:
   * Set the “-A” account flag to m2702 (IM3’s NERSC account number)
@@ -24,7 +24,7 @@ This page contains instructions for running the sequence of processing scripts t
 
 ![Launch Counties](images/launch_counties_completed.png)
 
-4. Make sure your changes are saved. Log on to NERSC and upload all the files to a folder on your scratch user directory. You can get to your scratch directory by running ```cd $SCRATCH```. You should also upload the *tl_2020_us_county.shp* file and *grid_cell_to_county_weight.parquet* file to the same directory as the code needs these ancillary files to run.
+4. Make sure your changes are saved. Log on to NERSC and upload all the files and ancillary population and geolocation data to a folder on your scratch user directory. You can get to your scratch directory by running ```cd $SCRATCH```.  
 
 5. Execute the following commands from your scratch directory where you will submit the job. Note that you shouldn’t run jobs from your home directory on NERSC.
 ```
@@ -35,12 +35,12 @@ sbatch launch_counties.sl
 6. You can check the status of your job by running the command ```squeue --me```. You should also get email confirmations when the job starts, ends, or fails.
 
 ## To run the wrf_tell_balancing_authorities.py step:
-1. Download and unzip the ancillary population and geolocation data needed to process the data: [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.5784542.svg)](https://doi.org/10.5281/zenodo.5784542).
+1. Download and unzip the ancillary population and geolocation data needed to process the data: [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.6377756.svg)](https://doi.org/10.5281/zenodo.6377756)
 
-2. Download the python scripts by making a local clone of the wrf_tell_ba branch of the im3components repository.
+2. Download the python scripts by making a local clone of the `develop` branch of the im3components repository.
 
 3. Find the *launch_balancing_authorities.sl* slurm script, open it in your favorite text editor, and make the following changes:
-  * Make all the same account information changes as above. The estimated run time for this step is 8 hrs for a 40 year period.
+  * Make all the same account information changes as above. The estimated run time for this step is 8 hrs for a 40-year period.
   * Set the paths in the srun section:
     * The “--is-historical” flag should should be set to **True** if you are running the historical period or **False** if you are doing a future scenario
     * “--balancing-authority-to-county” should point to the *fips_service_match_2019.csv* file
@@ -52,7 +52,7 @@ sbatch launch_counties.sl
 
 ![Launch BAs](images/launch_balancing_authorities_completed.png)
 
-4. Make sure your changes are saved. Log on to NERSC and upload all the files to a folder on your scratch user directory. You can get to your scratch directory by running ```cd $SCRATCH```. You should also upload the *fips_service_match_2019.csv*, *county_populations_2000_to_2019.csv*, *ssp3_county_population.csv*, and *ssp5_county_population.csv* files to the same directory as the code needs these ancillary files to run.
+4. Make sure your changes are saved. Log on to NERSC and upload all the files and ancillary population and geolocation data to a folder on your scratch user directory. You can get to your scratch directory by running ```cd $SCRATCH```.  
 
 5. Execute the following commands from your scratch directory where you will submit the job. Note that you shouldn’t run jobs from your home directory on NERSC.
 ```
