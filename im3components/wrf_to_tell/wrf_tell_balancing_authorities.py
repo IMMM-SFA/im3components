@@ -61,16 +61,7 @@ def wrf_to_tell_balancing_authorities(
         precisions = [2, 5, 2, 2, 2, 2]
 
     # Read the BA to county mapping file
-    ba_mapping_df = pd.read_csv(
-        balancing_authority_to_fips_file,
-        index_col=None,
-        header=0,
-    )[['county_fips', 'county_name', 'ba_number', 'ba_abbreviation']].rename(columns={
-        'county_fips': 'County_FIPS',
-        'county_name': 'County_Name',
-        'ba_number': 'BA_Number',
-        'ba_abbreviation': 'BA_Code',
-    }).drop_duplicates()
+    ba_mapping_df = pd.read_csv(balancing_authority_to_fips_file, index_col=None, header=0)
 
     # Read the county population by year file
     if is_historical:
