@@ -106,9 +106,10 @@ class StateModDataExtractor:
         # how many characters allotted to each field, not including whitespace between fields
         # note that in some files, several asterisks spilled into other fields, ruining ability to split by whitespace
         self.expected_column_sizes = np.asarray([
-            11, 12, 4, 4, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 12, 11
+            11, 13, 5, 5, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 13, 12
         ])
-        self.expected_line_size = self.expected_column_sizes.sum() + len(self.expected_column_sizes)
+        # the line separator counts as an extra character, hence the +1
+        self.expected_line_size = self.expected_column_sizes.sum() + 1
 
     def parse_xdd_file(self, file_path: str) -> bool:
         """Parses a StateMod xdd file into a parquet file.
@@ -132,11 +133,10 @@ class StateModDataExtractor:
         stream = io.StringIO()
         # read the file line by line
         with open(path, 'r') as file:
+            id_start = np.sum(self.expected_column_sizes[:self.id_column])
+            id_end = id_start + self.expected_column_sizes[self.id_column]
             for line in file:
-                # note here that we make two simplifying assumptions:
-                #   - all structure ids of interest start with a digit
-                #   - only lines of data start with a digit
-                if line[0].isdigit() and line[0:self.expected_column_sizes[0] + 1].strip() in self.ids_of_interest:
+                if line[id_start:id_end].strip() in self.ids_of_interest:
                     if len(line) != self.expected_line_size:
                         # unexpected line length; you need to double check the expected column sizes
                         logging.error(
@@ -148,8 +148,8 @@ class StateModDataExtractor:
                     position = 0
                     for count in self.expected_column_sizes:
                         data.append(line[position:position + count].strip())
-                        # account for single space between columns
-                        position += count + 1
+                        # no space in between columns
+                        position += count
                     if len(data) != self.expected_column_count:
                         # unexpected number of columns; you need to double check your data and settings
                         logging.error(
