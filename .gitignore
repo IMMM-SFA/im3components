@@ -1,6 +1,9 @@
 # PyCharm
 .idea
 
+# Data folders
+im3components/wrf_to_tell/data
+
 # system
 .DS_Store
 
