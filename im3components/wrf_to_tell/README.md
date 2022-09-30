@@ -65,8 +65,8 @@ sbatch launch_balancing_authorities.sl
 >
 ## Input and output directories on NERSC:
 
-| Data                      | In/Out | Base Path                                                    |
-|---------------------------| -------|--------------------------------------------------------------|
-| Raw WRF Output            | Input | /global/cfs/cdirs/m2702/gsharing/tgw-wrf-conus               |
-| County-Level Aggregations | Step 1 Output | /global/cfs/cdirs/m2702/wrf_to_tell/wrf_tell_counties_output |
-| BA-Level Aggregations     | Step 2 Output | /global/cfs/cdirs/m2702/wrf_to_tell/wrf_tell_bas_output      |
+| Data              | In/Out | Base Path                                                    |
+|-------------------| -------|--------------------------------------------------------------|
+| Raw WRF Data      | Input | /global/cfs/cdirs/m2702/gsharing/tgw-wrf-conus               |
+| County-Level Data | Step 1 Output | /global/cfs/cdirs/m2702/wrf_to_tell/wrf_tell_counties_output |
+| BA-Level Data     | Step 2 Output | /global/cfs/cdirs/m2702/wrf_to_tell/wrf_tell_bas_output      |
