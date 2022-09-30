@@ -22,7 +22,7 @@ srun parallel --retries 3 --jobs 4 'python wrf_tell_counties.py \
     --weights-file-path ./grid_cell_to_county_weight.parquet \
     --output-directory ./County_Output_Files \
     --output-filename-suffix _County_Mean_Meteorology \
-' ::: ./Raw_Data/wrfout*
+' ::: ./hourly/tgw_wrf_historic_hourly_2020*
 
 # create empty county files for and report any missing data
 # check the 'missing_data.txt' file in the output directory for a record of the missing timestamps
