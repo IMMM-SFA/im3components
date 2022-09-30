@@ -5,7 +5,7 @@ This page contains instructions for running the sequence of processing scripts t
 ## To run the wrf_tell_counties.py step:
 1. Download and unzip the ancillary population and geolocation data needed to process the data: [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.6407193.svg)](https://doi.org/10.5281/zenodo.6407193)
 
-2. Download the python scripts by making a local clone of the `develop` branch of the im3components repository.
+2. Download the python scripts by making a local clone of the `main` branch of the im3components repository.
 
 3. Find the *launch_counties.sl* slurm script, open it in your favorite text editor, and make the following changes:
   * Set the “-A” account flag to m2702 (IM3’s NERSC account number)
@@ -37,13 +37,13 @@ sbatch launch_counties.sl
 ## To run the wrf_tell_balancing_authorities.py step:
 1. Download and unzip the ancillary population and geolocation data needed to process the data: [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.6377756.svg)](https://doi.org/10.5281/zenodo.6377756)
 
-2. Download the python scripts by making a local clone of the `develop` branch of the im3components repository.
+2. Download the python scripts by making a local clone of the `main` branch of the im3components repository.
 
 3. Find the *launch_balancing_authorities.sl* slurm script, open it in your favorite text editor, and make the following changes:
   * Make all the same account information changes as above. The estimated run time for this step is 8 hrs for a 40-year period.
   * Set the paths in the srun section:
     * The “--is-historical” flag should should be set to **True** if you are running the historical period or **False** if you are doing a future scenario
-    * “--balancing-authority-to-county” should point to the *fips_service_match_2019.csv* file
+    * “--balancing-authority-to-county” should point to the *ba_service_territory_2019.csv* file
     * “--county-population-by-year” should point to the *county_populations_2000_to_2019.csv* file if you are running the historical period and to either the *ssp3_county_population.csv* or *ssp5_county_popluation.csv* file depending on which future scenario you are running
     * “--county-mean-data-directory_directory” should point to where you stored the output files from the first step (see the table below)
     * “--output_directory” should point to where you want to store the output files (see the table below)
@@ -65,8 +65,8 @@ sbatch launch_balancing_authorities.sl
 >
 ## Input and output directories on NERSC:
 
-| Data                      | In/Out | Base Path |
-|---------------------------| -------|-----------|
-| Raw WRF Output            | Input | /global/cfs/cdirs/m2702/gsharing/tgw-wrf-conus                       |
+| Data                      | In/Out | Base Path                                                    |
+|---------------------------| -------|--------------------------------------------------------------|
+| Raw WRF Output            | Input | /global/cfs/cdirs/m2702/gsharing/tgw-wrf-conus               |
 | County-Level Aggregations | Step 1 Output | /global/cfs/cdirs/m2702/wrf_to_tell/wrf_tell_counties_output |
 | BA-Level Aggregations     | Step 2 Output | /global/cfs/cdirs/m2702/wrf_to_tell/wrf_tell_bas_output      |
