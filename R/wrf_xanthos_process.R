@@ -24,7 +24,8 @@ resample_wrf_hourly_to_month <- function(ncdf_path = NULL,
                                          aggregation_method = c("mean"),
                                          out_dir='output',
                                          save=FALSE,
-                                         ncdf_resampled = NULL) {
+                                         ncdf_resampled = NULL,
+                                         pattern="*.nc") {
 
   # Initialize
   print("resample_wrf_hourly_to_month...")
@@ -35,12 +36,12 @@ resample_wrf_hourly_to_month <- function(ncdf_path = NULL,
 
   # Check if ncdf_path is a folder or list of files
   if(dir.exists(ncdf_path)){
-    ncdf_paths_original <- list.files(ncdf_path, pattern="^wrfout_*", full.names=TRUE, recursive=T)
+    ncdf_paths_original <- list.files(ncdf_path, pattern= pattern, full.names=TRUE, recursive=T)
   } else {
     if(is.character(class(ncdf_path))){
       ncdf_paths_original <- ncdf_path
     } else {
-      stop(paste0("ncdf_path must be a path to a folder or vector of files with paths to files starting with 'wrfout'."))
+      stop(paste0("ncdf_path must be a path to a folder or vector of files paths to files with the pattern: ", pattern, "."))
     }
   }
 
